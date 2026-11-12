@@ -3,126 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TELEMETRY // 5/4/9 Workday & RDO Countdown Console</title>
-    
-    <!-- Google Font: Courier Prime for authentic monospace terminal rendering -->
+    <title>TERMINAL // WORKDAY & RETIREMENT TELEMETRY</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Courier Prime Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <style>
+        /* Base Monospace Theme Setup */
         :root {
-            --theme-color: #00ff41;        /* Phosphor Green Default */
-            --theme-glow: rgba(0, 255, 65, 0.35);
-            --theme-dim: #003b10;
-            --theme-bg: #050705;
-            --card-bg: #0b0e0b;
-            --border-color: #00ff41;
-            --accent-amber: #ffb000;
-            --accent-cyan: #00f0ff;
-            --accent-red: #ff3344;
+            --bg-color: #050705;
+            --panel-bg: #090e0a;
+            --text-color: #00ff66;
+            --text-dim: #00aa44;
+            --text-muted: #006626;
+            --border-color: #004411;
+            --border-bright: #00ff66;
+            --accent-bg: #00220a;
+            --accent-highlight: #003311;
         }
 
-        /* Phosphor Color Theme Overrides */
         body.theme-amber {
-            --theme-color: #ffb000;
-            --theme-glow: rgba(255, 176, 0, 0.35);
-            --theme-dim: #3d2a00;
-            --theme-bg: #070603;
-            --card-bg: #0e0c07;
-            --border-color: #ffb000;
+            --bg-color: #070503;
+            --panel-bg: #0f0b06;
+            --text-color: #ffb000;
+            --text-dim: #cc8800;
+            --text-muted: #774f00;
+            --border-color: #442a00;
+            --border-bright: #ffb000;
+            --accent-bg: #261600;
+            --accent-highlight: #3a2200;
         }
 
-        body.theme-cyan {
-            --theme-color: #00f0ff;
-            --theme-glow: rgba(0, 240, 255, 0.35);
-            --theme-dim: #00363a;
-            --theme-bg: #040607;
-            --card-bg: #070c0e;
-            --border-color: #00f0ff;
+        body.theme-grey {
+            --bg-color: #08090a;
+            --panel-bg: #111418;
+            --text-color: #e2e8f0;
+            --text-dim: #94a3b8;
+            --text-muted: #475569;
+            --border-color: #334155;
+            --border-bright: #cbd5e1;
+            --accent-bg: #0f172a;
+            --accent-highlight: #1e293b;
         }
 
         * {
-            box-sizing: border-box;
             font-family: 'Courier Prime', 'Courier New', Courier, monospace !important;
-            border-radius: 0px !important; /* Strict sharp 0px industrial edges */
+            box-sizing: border-box;
         }
 
         body {
-            background-color: var(--theme-bg);
-            color: var(--theme-color);
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
-        /* CRT Terminal Scanlines Overlay */
-        .scanline-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
-            background: linear-gradient(
-                to bottom,
-                rgba(255,255,255,0),
-                rgba(255,255,255,0) 50%,
-                rgba(0, 0, 0, 0.4) 50%,
-                rgba(0, 0, 0, 0.4)
-            );
-            background-size: 100% 4px;
-            opacity: 0.6;
+        .term-panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
         }
 
-        .crt-flicker {
-            animation: flicker 0.15s infinite alternate;
+        .term-panel-bright {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-bright);
         }
 
-        @keyframes flicker {
-            0% { opacity: 0.98; }
-            100% { opacity: 1; }
-        }
-
-        /* Terminal Text Effects */
-        .term-glow {
-            text-shadow: 0 0 6px var(--theme-glow), 0 0 12px var(--theme-glow);
-        }
-
-        .term-box {
-            background-color: var(--card-bg);
-            border: 1px solid var(--theme-color);
-            box-shadow: 0 0 8px var(--theme-glow);
-        }
-
-        .term-box-dim {
-            background-color: rgba(5, 10, 5, 0.8);
-            border: 1px dashed var(--theme-color);
+        .term-border {
+            border-color: var(--border-color);
         }
 
         .term-btn {
-            background-color: rgba(0,0,0,0.8);
-            border: 1px solid var(--theme-color);
-            color: var(--theme-color);
-            transition: all 0.15s ease;
+            background-color: var(--accent-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.25rem 0.65rem;
             cursor: pointer;
-            text-transform: uppercase;
+            user-select: none;
+            transition: all 0.15s ease;
         }
 
         .term-btn:hover {
-            background-color: var(--theme-color);
-            color: #000000;
-            font-weight: bold;
-            box-shadow: 0 0 10px var(--theme-color);
+            border-color: var(--border-bright);
+            background-color: var(--accent-highlight);
+            box-shadow: 0 0 8px rgba(0,255,102,0.15);
         }
 
         .term-btn-active {
-            background-color: var(--theme-color) !important;
-            color: #000000 !important;
+            background-color: var(--text-color);
+            color: var(--bg-color) !important;
+            border-color: var(--text-color);
             font-weight: bold;
         }
+
+        .text-dim { color: var(--text-dim); }
+        .text-muted { color: var(--text-muted); }
+        .text-main { color: var(--text-color); }
+        .bg-main { background-color: var(--text-color); }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
@@ -130,1030 +108,1433 @@
             height: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #000;
-            border: 1px solid var(--theme-dim);
+            background: var(--bg-color);
+            border-left: 1px solid var(--border-color);
         }
         ::-webkit-scrollbar-thumb {
-            background: var(--theme-color);
+            background: var(--border-color);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-bright);
         }
 
-        /* Blinking Block Cursor */
-        .cursor-blink {
-            animation: blink 1s step-end infinite;
+        /* Pulse Blink Animation */
+        .blink {
+            animation: terminalBlink 1s infinite;
         }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+        @keyframes terminalBlink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
         }
     </style>
 </head>
-<body class="theme-green crt-flicker p-3 md:p-6 text-sm">
+<body class="theme-green min-h-screen p-2 sm:p-4 md:p-6 flex flex-col justify-between">
 
-    <!-- Optional Scanline Overlay -->
-    <div id="scanlineOverlay" class="scanline-overlay"></div>
+    <!-- MAIN TERMINAL CONTAINER -->
+    <div class="max-w-7xl mx-auto w-full space-y-4">
 
-    <!-- MAIN TERMINAL WRAPPER -->
-    <div class="max-w-7xl mx-auto space-y-4">
-        
-        <!-- TOP CONTROL & HEADER BANNER -->
-        <header class="term-box p-3 md:p-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-            <div>
-                <div class="flex items-center gap-2 font-bold text-base md:text-lg term-glow">
-                    <span>>>> SYSTEM TELEMETRY // 5-4-9 COMPRESSED SCHEDULE CONSOLE</span>
-                    <span class="inline-block w-2.5 h-5 bg-[var(--theme-color)] cursor-blink"></span>
-                </div>
-                <div class="text-xs text-[var(--theme-color)] opacity-80 mt-1">
-                    [MODULO-14 ENGINE: 80.00 HRS / 9 WORKDAYS] // UTC STAMP: <span id="sysUtcClock">00:00:00 UTC</span>
-                </div>
+        <!-- ========================================== -->
+        <!-- 1. TOP HEADER BAR                          -->
+        <!-- ========================================== -->
+        <header class="term-panel p-3 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="font-bold text-lg tracking-wider text-main">[SYS_TERMINAL // WORKDAY_TELEMETRY]</span>
+                <span class="text-xs text-dim px-2 py-0.5 border term-border">5/4/9 SCHEDULE OPERATIONAL</span>
             </div>
 
-            <!-- TOP ACTION BAR -->
-            <div class="flex flex-wrap items-center gap-2 text-xs w-full lg:w-auto">
-                <!-- Theme Switcher -->
-                <div class="flex items-center gap-1 border border-[var(--theme-color)] p-1 bg-black">
-                    <span class="px-1 text-xs opacity-75">TINT:</span>
-                    <button onclick="setTheme('green')" id="btnThemeGreen" class="term-btn px-2 py-0.5 text-xs term-btn-active">[GREEN]</button>
-                    <button onclick="setTheme('amber')" id="btnThemeAmber" class="term-btn px-2 py-0.5 text-xs">[AMBER]</button>
-                    <button onclick="setTheme('cyan')" id="btnThemeCyan" class="term-btn px-2 py-0.5 text-xs">[CYBER]</button>
+            <!-- Controls & Theme Switcher -->
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+                <!-- Live System Clock -->
+                <div id="topClock" class="text-dim font-bold px-2 py-1 bg-black/40 border term-border">
+                    0000-00-00 00:00:00.000
                 </div>
 
-                <!-- CRT Toggle -->
-                <button onclick="toggleScanlines()" id="btnScanlines" class="term-btn px-2 py-1">[CRT: ON]</button>
-
-                <!-- Quick RDO Sync Toggle -->
-                <button onclick="toggleRdoSync()" id="btnRdoSync" class="term-btn px-2 py-1 text-yellow-400 border-yellow-400">
-                    RDO: [THIS FRIDAY]
+                <!-- RDO Sync Toggle Button -->
+                <button id="rdoSyncBtn" onclick="toggleRdoSync()" class="term-btn" title="Toggle current biweekly RDO Friday week status">
+                    RDO SYNC: [LOADING]
                 </button>
 
-                <!-- Config Modal Trigger -->
-                <button onclick="openConfigModal()" class="term-btn px-2 py-1">[CONFIG_SYS]</button>
+                <!-- Theme Controls -->
+                <div class="flex border term-border">
+                    <button onclick="setTheme('green')" id="themeBtn-green" class="px-2 py-1 text-xs hover:bg-black/40">GREEN</button>
+                    <button onclick="setTheme('amber')" id="themeBtn-amber" class="px-2 py-1 text-xs hover:bg-black/40 border-l term-border">AMBER</button>
+                    <button onclick="setTheme('grey')" id="themeBtn-grey" class="px-2 py-1 text-xs hover:bg-black/40 border-l term-border">GREY</button>
+                </div>
 
-                <!-- Export Button -->
-                <button onclick="exportDashboard()" class="term-btn px-2 py-1 text-cyan-400 border-cyan-400">[SAVE_HTML]</button>
+                <!-- Config Modal Trigger -->
+                <button onclick="openConfigModal()" class="term-btn font-bold">
+                    [CONFIG]
+                </button>
             </div>
         </header>
 
-        <!-- DASHBOARD TELEMETRY GRID -->
-        <main class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            
-            <!-- LEFT COLUMN: TODAY'S SHIFT TELEMETRY (7 COLS) -->
-            <section class="lg:col-span-7 space-y-4">
-                
-                <!-- PRIMARY LIVE SHIFT COUNTDOWN DISPLAY -->
-                <div class="term-box p-4 relative overflow-hidden">
-                    <div class="flex justify-between items-center border-b border-[var(--theme-color)] pb-2 mb-3 text-xs">
-                        <span class="font-bold">// REAL-TIME SHIFT CHRONOMETER</span>
-                        <span id="shiftTypeTag" class="px-2 py-0.5 bg-[var(--theme-dim)] text-[var(--theme-color)] border border-[var(--theme-color)]">
-                            STANDARD_9HR
+        <!-- ========================================== -->
+        <!-- 2. SECTION 1: END OF DAY COUNTDOWN (HERO 1)-->
+        <!-- ========================================== -->
+        <section class="term-panel-bright p-4 sm:p-6 relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3 border-b term-border pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-dim font-bold">SECTION 01 // TODAY's SHIFT TELEMETRY</span>
+                    <span id="shiftStatusBadge" class="text-xs px-2 py-0.5 font-bold border term-border bg-black/30">
+                        CALCULATING...
+                    </span>
+                </div>
+                <div id="todayDateLabel" class="text-xs text-dim">--</div>
+            </div>
+
+            <!-- Hero Countdown Display -->
+            <div class="py-2 text-center my-2">
+                <div class="text-xs text-dim tracking-widest uppercase mb-1">COUNTDOWN TO END OF SHIFT (EOD)</div>
+                <div id="eodCountdownDisplay" class="text-3xl sm:text-5xl md:text-6xl font-bold tracking-wider font-mono">
+                    00 : 00 : 00 . 0
+                </div>
+            </div>
+
+            <!-- Full Width Progress Bar for Today's Shift -->
+            <div class="mt-4">
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-dim">SHIFT COMPLETION PROGRESS</span>
+                    <span id="eodProgressText" class="font-bold">00.00%</span>
+                </div>
+                <div class="flex items-center text-sm font-mono leading-none">
+                    <span class="mr-1 text-dim">[</span>
+                    <div class="w-full bg-black/40 border term-border h-5 p-0.5 flex">
+                        <div id="eodProgressBar" class="bg-main h-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <span class="ml-1 text-dim">]</span>
+                </div>
+            </div>
+
+            <!-- Today Shift Metadata Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mt-5 text-xs pt-3 border-t term-border">
+                <div>
+                    <div class="text-muted">SHIFT TYPE</div>
+                    <div id="metaShiftType" class="font-bold text-main">--</div>
+                </div>
+                <div>
+                    <div class="text-muted">SHIFT WINDOW</div>
+                    <div id="metaShiftWindow" class="font-bold">--</div>
+                </div>
+                <div>
+                    <div class="text-muted">LUNCH WINDOW</div>
+                    <div id="metaLunchWindow" class="font-bold">--</div>
+                </div>
+                <div>
+                    <div class="text-muted">NET DUTY HOURS (ELAPSED / REM)</div>
+                    <div id="metaDutyHours" class="font-bold">0.00h / 0.00h</div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- 3. SECTION 2: SINGLE WEEKEND & PAY PERIOD  -->
+        <!-- ========================================== -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+            <!-- UNIFIED NEXT WEEKEND COUNTDOWN -->
+            <div class="term-panel p-4 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-3 border-b term-border pb-2">
+                        <span class="text-xs text-dim font-bold">SECTION 02A // UNIFIED NEXT WEEKEND LAUNCH</span>
+                        <span id="weekendBadge" class="text-xs px-2 py-0.5 border term-border font-bold">
+                            CALCULATING...
                         </span>
                     </div>
 
-                    <!-- Status Header Banner -->
-                    <div id="statusBanner" class="font-bold text-sm md:text-base mb-3 p-2 border border-[var(--theme-color)] bg-black/60 term-glow">
-                        >> STATUS: IN_SHIFT // SHIFT IN PROGRESS
-                    </div>
-
-                    <!-- HUGE MONOSPACE CLOCK -->
-                    <div class="text-center py-4 bg-black border border-[var(--theme-color)] my-3">
-                        <div class="text-xs opacity-75 uppercase tracking-widest mb-1" id="clockLabel">REMAINING WORK TIME TODAY</div>
-                        <div id="mainShiftClock" class="text-4xl md:text-6xl font-bold term-glow tracking-wider text-center font-mono">
-                            00:00:00.0
+                    <div class="text-center py-3">
+                        <div class="text-xs text-dim tracking-widest mb-1">TIME UNTIL WEEKEND OFF-DUTY STATUS</div>
+                        <div id="weekendCountdown" class="text-2xl sm:text-4xl font-bold tracking-wider font-mono">
+                            00d 00h : 00m : 00s
                         </div>
-                        <div class="text-xs mt-2 opacity-80" id="shiftTimeRangeSub">
-                            SHIFT WINDOW: 07:00:00 - 16:30:00 (30M LUNCH)
+                        <div id="weekendWorkHoursRemaining" class="text-xs text-dim mt-2">
+                            ON-THE-CLOCK DUTY HOURS REMAINING: <span id="weekendDutyHoursVal" class="font-bold text-main">0.0 hrs</span>
                         </div>
-                    </div>
-
-                    <!-- TODAY SHIFT ASCII PROGRESS BAR -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-xs">
-                            <span>TODAY'S SHIFT PROGRESS</span>
-                            <span id="shiftPctVal" class="font-bold">0.000%</span>
-                        </div>
-                        <div id="shiftAsciiBar" class="font-mono text-xs overflow-x-hidden whitespace-nowrap bg-black p-2 border border-[var(--theme-color)]">
-                            [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░]
-                        </div>
-                    </div>
-
-                    <!-- SHIFT METRICS BREAKDOWN GRID -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs mt-4 pt-3 border-t border-[var(--theme-dim)]">
-                        <div class="p-2 bg-black border border-[var(--theme-dim)]">
-                            <div class="opacity-70">ELAPSED WORK</div>
-                            <div id="metricElapsed" class="font-bold text-sm text-[var(--theme-color)]">0.00 HRS</div>
-                        </div>
-                        <div class="p-2 bg-black border border-[var(--theme-dim)]">
-                            <div class="opacity-70">REMAINING WORK</div>
-                            <div id="metricRemaining" class="font-bold text-sm text-[var(--theme-color)]">0.00 HRS</div>
-                        </div>
-                        <div class="p-2 bg-black border border-[var(--theme-dim)]">
-                            <div class="opacity-70">LUNCH STATUS</div>
-                            <div id="metricLunch" class="font-bold text-sm text-amber-400">PENDING</div>
-                        </div>
-                        <div class="p-2 bg-black border border-[var(--theme-dim)]">
-                            <div class="opacity-70">DAY DUTY TOTAL</div>
-                            <div id="metricShiftDuty" class="font-bold text-sm text-cyan-400">9.00 HRS</div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- DUAL WEEKEND LAUNCH TRACKERS -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    
-                    <!-- WEEKEND LAUNCH CARD -->
-                    <div class="term-box p-3 space-y-2">
-                        <div class="flex justify-between items-center text-xs border-b border-[var(--theme-color)] pb-1 font-bold">
-                            <span>// NEXT WEEKEND LAUNCH</span>
-                            <span id="nextWkndTag" class="text-xs text-amber-400">[SHORT THU / FRI]</span>
-                        </div>
-                        <div class="text-center py-2 bg-black border border-[var(--theme-dim)]">
-                            <div id="wkndCountdown" class="text-xl md:text-2xl font-bold term-glow font-mono">
-                                0d 00h 00m 00s
-                            </div>
-                            <div class="text-[10px] opacity-75 mt-1" id="wkndTargetSub">
-                                TARGET: FRI 16:30
-                            </div>
-                        </div>
-                        <div class="text-xs flex justify-between opacity-80">
-                            <span>WORK HRS LEFT:</span>
-                            <span id="wkndWorkHrsLeft" class="font-bold text-[var(--theme-color)]">0.0 HRS</span>
-                        </div>
-                    </div>
-
-                    <!-- 3-DAY RDO LONG WEEKEND LAUNCH CARD -->
-                    <div class="term-box p-3 space-y-2">
-                        <div class="flex justify-between items-center text-xs border-b border-[var(--theme-color)] pb-1 font-bold">
-                            <span>// NEXT 3-DAY RDO WEEKEND</span>
-                            <span class="text-xs text-cyan-400">[RDO FREEDOM]</span>
-                        </div>
-                        <div class="text-center py-2 bg-black border border-[var(--theme-dim)]">
-                            <div id="rdoCountdown" class="text-xl md:text-2xl font-bold text-cyan-400 term-glow font-mono">
-                                0d 00h 00m 00s
-                            </div>
-                            <div class="text-[10px] opacity-75 mt-1" id="rdoTargetSub">
-                                TARGET: THU 15:30 (SHORT THU RELEASE)
-                            </div>
-                        </div>
-                        <div class="text-xs flex justify-between opacity-80">
-                            <span>WORK HRS TO RDO:</span>
-                            <span id="rdoWorkHrsLeft" class="font-bold text-cyan-400">0.0 HRS</span>
-                        </div>
-                    </div>
-
-                </div>
-
-            </section>
-
-            <!-- RIGHT COLUMN: 14-DAY / 80-HOUR MATRIX & PAY PERIOD TELEMETRY (5 COLS) -->
-            <section class="lg:col-span-5 space-y-4">
-                
-                <!-- 80-HOUR PAY PERIOD TELEMETRY -->
-                <div class="term-box p-4 space-y-3">
-                    <div class="flex justify-between items-center border-b border-[var(--theme-color)] pb-2 text-xs font-bold">
-                        <span>// 80-HOUR PAY PERIOD TELEMETRY</span>
-                        <span id="ppCycleTag" class="text-xs text-yellow-400">[WEEK 1 OF 2]</span>
-                    </div>
-
-                    <!-- 80-Hour ASCII Progress Bar -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-xs">
-                            <span>PAY PERIOD LOGGED</span>
-                            <span id="ppLoggedHrs" class="font-bold">0.00 / 80.00 HRS</span>
-                        </div>
-                        <div id="ppAsciiBar" class="font-mono text-xs overflow-x-hidden whitespace-nowrap bg-black p-2 border border-[var(--theme-color)] text-yellow-400">
-                            [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░]
-                        </div>
-                        <div class="flex justify-between text-[11px] opacity-80">
-                            <span>PROGRESS: <span id="ppPctVal">0.00%</span></span>
-                            <span>REMAINING: <span id="ppRemHrs" class="font-bold text-yellow-400">80.00 HRS</span></span>
-                        </div>
-                    </div>
-
-                    <!-- 14-DAY PAY PERIOD MATRIX GRID -->
-                    <div class="pt-2">
-                        <div class="text-xs font-bold mb-2">// 14-DAY CYCLE MATRIX (5/4/9 COMPRESSED)</div>
-                        
-                        <!-- WEEK 1 GRID -->
-                        <div class="mb-2">
-                            <div class="text-[11px] text-amber-400 font-bold mb-1">WEEK 1 (45.0 HRS)</div>
-                            <div class="grid grid-cols-7 gap-1 text-center text-[10px]" id="gridWeek1">
-                                <!-- Populated dynamically by JS -->
-                            </div>
-                        </div>
-
-                        <!-- WEEK 2 GRID -->
-                        <div>
-                            <div class="text-[11px] text-cyan-400 font-bold mb-1">WEEK 2 (35.0 HRS - SHORT THU & RDO FRI)</div>
-                            <div class="grid grid-cols-7 gap-1 text-center text-[10px]" id="gridWeek2">
-                                <!-- Populated dynamically by JS -->
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- CUSTOM TARGET LOG / MILESTONES -->
-                <div class="term-box p-4 space-y-3">
-                    <div class="flex justify-between items-center border-b border-[var(--theme-color)] pb-2 text-xs font-bold">
-                        <span>// CUSTOM TARGET LOG [MILESTONES]</span>
-                        <button onclick="openAddMilestoneModal()" class="term-btn px-2 py-0.5 text-[11px]">+ ADD_TARGET</button>
-                    </div>
-
-                    <div id="milestonesList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                        <!-- Populated dynamically -->
                     </div>
                 </div>
 
-            </section>
-        </main>
+                <!-- Weekly Work Progress Bar -->
+                <div class="mt-3">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-dim">WORK WEEK CYCLE PROGRESS</span>
+                        <span id="weeklyProgressText" class="font-bold">00.00%</span>
+                    </div>
+                    <div class="flex items-center text-xs font-mono">
+                        <span class="mr-1 text-dim">[</span>
+                        <div class="w-full bg-black/40 border term-border h-4 p-0.5 flex">
+                            <div id="weeklyProgressBar" class="bg-main h-full" style="width: 0%"></div>
+                        </div>
+                        <span class="ml-1 text-dim">]</span>
+                    </div>
+                </div>
+            </div>
 
-        <!-- FOOTER STATUS LINE -->
-        <footer class="term-box p-2 text-center text-xs flex flex-col sm:flex-row justify-between items-center gap-2 opacity-80">
-            <div>SYSTEM: ONLINE // ENCODING: UTF-8 // RDO COMPRESSED SCHEDULE ENGINE</div>
-            <div>STATUS: TELEMETRY ACTIVE <span class="inline-block w-2 h-2 bg-[var(--theme-color)] cursor-blink ml-1"></span></div>
+            <!-- BIWEEKLY PAYDAY TELEMETRY -->
+            <div class="term-panel p-4 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-3 border-b term-border pb-2">
+                        <span class="text-xs text-dim font-bold">SECTION 02B // BIWEEKLY PAYDAY TELEMETRY</span>
+                        <span id="paydayTargetLabel" class="text-xs text-dim">NEXT: --</span>
+                    </div>
+
+                    <div class="text-center py-3">
+                        <div class="text-xs text-dim tracking-widest mb-1">COUNTDOWN TO BIWEEKLY PAYDAY</div>
+                        <div id="paydayCountdown" class="text-2xl sm:text-4xl font-bold tracking-wider font-mono">
+                            00d 00h : 00m : 00s
+                        </div>
+                        <div class="text-xs text-dim mt-2">
+                            DUTY HOURS REMAINING TO PAYDAY: <span id="paydayDutyHoursVal" class="font-bold text-main">0.0 hrs</span>
+                            <span class="ml-2 text-muted">| NEXT+1: <span id="paydayPlusOneLabel">--</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Biweekly Pay Progress Bar -->
+                <div class="mt-3">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-dim">BIWEEKLY PAY PERIOD PROGRESS (80 HOURS)</span>
+                        <span id="paydayProgressText" class="font-bold">00.00%</span>
+                    </div>
+                    <div class="flex items-center text-xs font-mono">
+                        <span class="mr-1 text-dim">[</span>
+                        <div class="w-full bg-black/40 border term-border h-4 p-0.5 flex">
+                            <div id="paydayProgressBar" class="bg-main h-full" style="width: 0%"></div>
+                        </div>
+                        <span class="ml-1 text-dim">]</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 14-DAY / 80-HOUR PAY PERIOD MATRIX (SPAN 2 COLUMNS) -->
+            <div class="term-panel p-4 lg:col-span-2">
+                <div class="flex justify-between items-center mb-3 border-b term-border pb-2">
+                    <span class="text-xs text-dim font-bold">SECTION 02C // 14-DAY (80-HR) COMPRESSED WORK SCHEDULE MATRIX</span>
+                    <span id="matrixCycleBadge" class="text-xs text-dim">CYCLE: WEEK 1 / WEEK 2</span>
+                </div>
+
+                <!-- 14-Day Grid -->
+                <div id="payPeriodMatrixGrid" class="grid grid-cols-2 sm:grid-cols-7 lg:grid-cols-14 gap-1 text-center text-xs mb-4">
+                    <!-- Populated dynamically by JS -->
+                </div>
+
+                <!-- 80-Hour Accumulation Bar -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-dim">80-HOUR PAY PERIOD DUTY ACCUMULATION</span>
+                        <span id="eightyHourText" class="font-bold">0.0 / 80.0 HRS (00.0%)</span>
+                    </div>
+                    <div class="flex items-center text-xs font-mono">
+                        <span class="mr-1 text-dim">[</span>
+                        <div class="w-full bg-black/40 border term-border h-4 p-0.5 flex">
+                            <div id="eightyHourProgressBar" class="bg-main h-full" style="width: 0%"></div>
+                        </div>
+                        <span class="ml-1 text-dim">]</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- 4. SECTION 3: TARGET MILESTONES           -->
+        <!-- ========================================== -->
+        <section class="term-panel p-4 sm:p-6 space-y-4">
+            <!-- Header & Milestone Switcher -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b term-border pb-3">
+                <div>
+                    <div class="text-xs text-dim font-bold">SECTION 03 // NEXT TARGET MILESTONE (VACATION / LEAVE / HOLIDAY)</div>
+                    <div id="activeMilestoneTitle" class="text-lg font-bold text-main mt-0.5">--</div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <button onclick="prevMilestone()" class="term-btn">&lt; PREV</button>
+                    <span id="milestoneCounterLabel" class="text-dim px-2">1 / 1</span>
+                    <button onclick="nextMilestone()" class="term-btn">NEXT &gt;</button>
+                    <button onclick="openNewMilestoneModal()" class="term-btn font-bold">+ NEW MILESTONE</button>
+                </div>
+            </div>
+
+            <!-- Active Milestone Main Countdown -->
+            <div class="text-center py-2">
+                <div class="text-xs text-dim tracking-widest mb-1">COUNTDOWN TO TARGET MILESTONE</div>
+                <div id="milestoneCountdownDisplay" class="text-3xl sm:text-5xl font-bold tracking-wider font-mono">
+                    000d 00h : 00m : 00s . 0
+                </div>
+                <div id="milestoneTargetDateLabel" class="text-xs text-dim mt-1">TARGET: --</div>
+            </div>
+
+            <!-- Full Width Progress Bar for Active Milestone -->
+            <div>
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-dim">MILESTONE TIMELINE PROGRESS</span>
+                    <span id="milestoneProgressText" class="font-bold">00.00%</span>
+                </div>
+                <div class="flex items-center text-xs font-mono">
+                    <span class="mr-1 text-dim">[</span>
+                    <div class="w-full bg-black/40 border term-border h-4 p-0.5 flex">
+                        <div id="milestoneProgressBar" class="bg-main h-full" style="width: 0%"></div>
+                    </div>
+                    <span class="ml-1 text-dim">]</span>
+                </div>
+            </div>
+
+            <!-- Milestone Telemetry Details Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-2 border-t term-border">
+                <div class="bg-black/30 p-2 border term-border">
+                    <div class="text-muted">ACTUAL WORKDAYS REMAINING</div>
+                    <div id="msWorkdaysRemaining" class="text-base font-bold text-main">0 days</div>
+                    <div class="text-[10px] text-dim">Excludes Weekends &amp; RDOs</div>
+                </div>
+                <div class="bg-black/30 p-2 border term-border">
+                    <div class="text-muted">DUTY WORK HOURS REMAINING</div>
+                    <div id="msDutyHoursRemaining" class="text-base font-bold text-main">0.0 hrs</div>
+                    <div class="text-[10px] text-dim">On-the-clock shift time</div>
+                </div>
+                <div class="bg-black/30 p-2 border term-border">
+                    <div class="text-muted">RDO FRIDAYS REMAINING</div>
+                    <div id="msRdosRemaining" class="text-base font-bold text-main">0 RDOs</div>
+                    <div class="text-[10px] text-dim">3-day weekends ahead</div>
+                </div>
+                <div class="bg-black/30 p-2 border term-border">
+                    <div class="text-muted">PAYDAYS REMAINING</div>
+                    <div id="msPaydaysRemaining" class="text-base font-bold text-main">0 Paydays</div>
+                    <div class="text-[10px] text-dim">Biweekly pay cycles</div>
+                </div>
+            </div>
+
+            <!-- Queue Manager List (Expandable / Compact) -->
+            <div class="mt-4 pt-3 border-t term-border">
+                <div class="text-xs text-dim font-bold mb-2">CONFIGURED MILESTONES QUEUE:</div>
+                <div id="milestonesQueueList" class="space-y-1 max-h-36 overflow-y-auto pr-1">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- 5. SECTION 4: RETIREMENT COUNTDOWN         -->
+        <!--    (BOTTOM OF PAGE - 67TH BIRTHDAY)        -->
+        <!-- ========================================== -->
+        <section class="term-panel-bright p-4 sm:p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b term-border pb-3">
+                <div>
+                    <span class="text-xs text-dim font-bold tracking-widest">&gt;&gt; LONG_RANGE_HORIZON // RETIREMENT_COUNTDOWN</span>
+                    <h2 class="text-lg font-bold text-main" id="retireTitleLabel">67TH BIRTHDAY RETIREMENT — JULY 02, 2054</h2>
+                </div>
+                <div class="text-xs border term-border px-2 py-1 bg-black/40 text-dim">
+                    SERVICE START: <span id="careerStartDateLabel" class="font-bold text-main">2019-07-01</span>
+                </div>
+            </div>
+
+            <!-- Big High-Impact Retirement Countdown -->
+            <div class="text-center py-4 my-1 bg-black/30 border term-border">
+                <div class="text-xs text-dim tracking-widest uppercase mb-1">TOTAL CALENDAR TIME UNTIL RETIREMENT</div>
+                <div id="retirementClockDisplay" class="text-2xl sm:text-4xl md:text-5xl font-bold tracking-wider font-mono text-main">
+                    00 YRS : 000 DAYS : 00 HRS : 00 MIN : 00 SEC
+                </div>
+                <div id="retirementTotalDays" class="text-xs text-dim mt-2 font-mono">
+                    TOTAL REMAINING CALENDAR DAYS: <span class="text-main font-bold">0,000 DAYS</span>
+                </div>
+            </div>
+
+            <!-- Career Service Progress Bar -->
+            <div>
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-dim">CAREER SERVICE COMPLETION RATE (HIGH-PRECISION TICK)</span>
+                    <span id="retirePrecisionPercent" class="font-bold text-main font-mono">00.000000%</span>
+                </div>
+                <div class="flex items-center text-sm font-mono leading-none">
+                    <span class="mr-1 text-dim">[</span>
+                    <div class="w-full bg-black/40 border term-border h-6 p-0.5 flex">
+                        <div id="retireProgressBar" class="bg-main h-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <span class="ml-1 text-dim">]</span>
+                </div>
+            </div>
+
+            <!-- Detailed 5/4/9 Career Telemetry Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-2">
+                <div class="term-panel p-3">
+                    <div class="text-muted">EST. 5/4/9 WORKDAYS</div>
+                    <div id="retireWorkdaysVal" class="text-lg font-bold text-main">0</div>
+                    <div class="text-[10px] text-dim">~234.6 workdays / year</div>
+                </div>
+
+                <div class="term-panel p-3">
+                    <div class="text-muted">EST. ON-DUTY HOURS</div>
+                    <div id="retireDutyHoursVal" class="text-lg font-bold text-main">0.0 hrs</div>
+                    <div class="text-[10px] text-dim">80 duty hrs / 14-day cycle</div>
+                </div>
+
+                <div class="term-panel p-3">
+                    <div class="text-muted">BIWEEKLY PAYDAYS</div>
+                    <div id="retirePaydaysVal" class="text-lg font-bold text-main">0</div>
+                    <div class="text-[10px] text-dim">Remaining paychecks</div>
+                </div>
+
+                <div class="term-panel p-3">
+                    <div class="text-muted">3-DAY RDO WEEKENDS</div>
+                    <div id="retireRdosVal" class="text-lg font-bold text-main">0</div>
+                    <div class="text-[10px] text-dim">Friday-Off 3-day weekends</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="text-center text-xs text-muted py-4 border-t term-border">
+            TERMINAL WORKDAY COUNTDOWN v4.2 // 5/4/9 COMPRESSED SCHEDULE ENGINE // NO SCANLINES ACTIVE
         </footer>
-
     </div>
 
-    <!-- SETTINGS MODAL -->
+
+    <!-- ========================================== -->
+    <!-- MODAL 1: SYSTEM CONFIG MODAL               -->
+    <!-- ========================================== -->
     <div id="configModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="term-box max-w-lg w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-[var(--theme-color)] pb-2">
-                <span class="font-bold text-base">// CONFIG_SYS: SHIFT & RDO ENGINE PARAMETERS</span>
-                <button onclick="closeConfigModal()" class="term-btn px-2 py-0.5">[X]</button>
+        <div class="term-panel-bright max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b term-border pb-2">
+                <span class="font-bold text-base text-main">[SYSTEM_CONFIGURATION]</span>
+                <button onclick="closeConfigModal()" class="term-btn text-xs">X CLOSE</button>
             </div>
 
-            <form id="configForm" onsubmit="saveConfig(event)" class="space-y-3 text-xs">
-                
-                <div>
-                    <label class="block font-bold mb-1">SHIFT START TIME (24-HR):</label>
-                    <input type="time" id="cfgShiftStart" required class="w-full bg-black border border-[var(--theme-color)] p-2 text-[var(--theme-color)]">
-                </div>
-
-                <div>
-                    <label class="block font-bold mb-1">NORMAL SHIFT END TIME (9-HR DAY):</label>
-                    <input type="time" id="cfgShiftEndNormal" required class="w-full bg-black border border-[var(--theme-color)] p-2 text-[var(--theme-color)]">
-                    <span class="text-[10px] opacity-70">Default: 16:30 for 9-hour workdays (including lunch).</span>
-                </div>
-
-                <div>
-                    <label class="block font-bold mb-1">SHORT THURSDAY END TIME (8-HR DAY -1HR EARLY):</label>
-                    <input type="time" id="cfgShiftEndShortThu" required class="w-full bg-black border border-[var(--theme-color)] p-2 text-[var(--theme-color)]">
-                    <span class="text-[10px] opacity-70">Default: 15:30 (1 hour early departure on Week 2 Thursday).</span>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block font-bold mb-1">LUNCH START:</label>
-                        <input type="time" id="cfgLunchStart" required class="w-full bg-black border border-[var(--theme-color)] p-2 text-[var(--theme-color)]">
+            <div class="space-y-4 text-xs">
+                <!-- Shift Times -->
+                <div class="border term-border p-3 space-y-3">
+                    <div class="font-bold text-dim">1. WORK SHIFT PARAMETERS (5/4/9 SCHEDULE)</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-muted mb-1">Shift Start Time</label>
+                            <input type="time" id="cfgShiftStart" class="w-full bg-black border term-border p-1 text-main">
+                        </div>
+                        <div>
+                            <label class="block text-muted mb-1">Standard Shift End Time</label>
+                            <input type="time" id="cfgShiftEnd" class="w-full bg-black border term-border p-1 text-main">
+                        </div>
+                        <div>
+                            <label class="block text-muted mb-1">Short Thu End Time</label>
+                            <input type="time" id="cfgShortThuEnd" class="w-full bg-black border term-border p-1 text-main">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block font-bold mb-1">LUNCH DURATION (MINS):</label>
-                        <input type="number" id="cfgLunchMins" min="0" max="120" required class="w-full bg-black border border-[var(--theme-color)] p-2 text-[var(--theme-color)]">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                        <div>
+                            <label class="block text-muted mb-1">Lunch Start Time</label>
+                            <input type="time" id="cfgLunchStart" class="w-full bg-black border term-border p-1 text-main">
+                        </div>
+                        <div>
+                            <label class="block text-muted mb-1">Lunch Duration (Minutes)</label>
+                            <input type="number" id="cfgLunchMins" class="w-full bg-black border term-border p-1 text-main" min="0" max="120">
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block font-bold mb-1">ANCHOR RDO FRIDAY DATE:</label>
-                    <input type="date" id="cfgAnchorRdoDate" required class="w-full bg-black border border-[var(--theme-color)] p-2 text-[var(--theme-color)]">
-                    <span class="text-[10px] opacity-70">Select any known RDO Friday. The 14-day modulo cycle will anchor from this date.</span>
+                <!-- Schedule Anchors -->
+                <div class="border term-border p-3 space-y-3">
+                    <div class="font-bold text-dim">2. RDO & PAYDAY ANCHOR DATES</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-muted mb-1">RDO Friday Anchor Date</label>
+                            <input type="date" id="cfgRdoAnchor" class="w-full bg-black border term-border p-1 text-main">
+                            <span class="text-[10px] text-muted">Select any Friday that is an RDO Off-Day</span>
+                        </div>
+                        <div>
+                            <label class="block text-muted mb-1">Biweekly Payday Anchor Date</label>
+                            <input type="date" id="cfgPaydayAnchor" class="w-full bg-black border term-border p-1 text-main">
+                            <span class="text-[10px] text-muted">Select any official Friday payday</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="pt-3 border-t border-[var(--theme-dim)] flex justify-end gap-2">
-                    <button type="button" onclick="resetConfigDefaults()" class="term-btn px-3 py-1 text-red-400 border-red-400">[RESET_DEFAULTS]</button>
-                    <button type="submit" class="term-btn term-btn-active px-4 py-1">[SAVE_CONFIG]</button>
+                <!-- Career & Retirement -->
+                <div class="border term-border p-3 space-y-3">
+                    <div class="font-bold text-dim">3. CAREER & RETIREMENT HORIZON (67TH BIRTHDAY)</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-muted mb-1">Federal / Career Start Date</label>
+                            <input type="date" id="cfgCareerStart" class="w-full bg-black border term-border p-1 text-main">
+                        </div>
+                        <div>
+                            <label class="block text-muted mb-1">Retirement Target Date &amp; Time</label>
+                            <input type="datetime-local" id="cfgRetireDate" class="w-full bg-black border term-border p-1 text-main">
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-            </form>
+            <div class="flex justify-end gap-2 pt-3 border-t term-border">
+                <button onclick="resetConfigDefaults()" class="term-btn text-xs">RESET DEFAULTS</button>
+                <button onclick="saveConfigModal()" class="term-btn font-bold text-xs">[SAVE CONFIGURATION]</button>
+            </div>
         </div>
     </div>
 
-    <!-- ADD MILESTONE MODAL -->
-    <div id="milestoneModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="term-box max-w-md w-full p-5 space-y-4">
-            <div class="flex justify-between items-center border-b border-[var(--theme-color)] pb-2">
-                <span class="font-bold text-sm">// ADD_TARGET: NEW MILESTONE</span>
-                <button onclick="closeMilestoneModal()" class="term-btn px-2 py-0.5">[X]</button>
+
+    <!-- ========================================== -->
+    <!-- MODAL 2: ADD NEW MILESTONE MODAL           -->
+    <!-- ========================================== -->
+    <div id="newMilestoneModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="term-panel-bright max-w-lg w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b term-border pb-2">
+                <span class="font-bold text-base text-main">[ADD_NEW_TARGET_MILESTONE]</span>
+                <button onclick="closeNewMilestoneModal()" class="term-btn text-xs">X CLOSE</button>
             </div>
 
-            <form onsubmit="saveMilestone(event)" class="space-y-3 text-xs">
+            <div class="space-y-3 text-xs">
                 <div>
-                    <label class="block font-bold mb-1">MILESTONE LABEL / TITLE:</label>
-                    <input type="text" id="msLabel" required placeholder="e.g. Summer Vacation PTO" class="w-full bg-black border border-[var(--theme-color)] p-2 text-[var(--theme-color)]">
+                    <label class="block text-muted mb-1">Milestone Title</label>
+                    <input type="text" id="newMsTitle" placeholder="e.g., Thanksgiving Break, Wolf Creek Trip" class="w-full bg-black border term-border p-2 text-main">
                 </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-muted mb-1">Start Date/Time (Progress Anchor)</label>
+                        <input type="datetime-local" id="newMsStart" class="w-full bg-black border term-border p-1 text-main">
+                    </div>
+                    <div>
+                        <label class="block text-muted mb-1">Target Date/Time</label>
+                        <input type="datetime-local" id="newMsTarget" class="w-full bg-black border term-border p-1 text-main">
+                    </div>
+                </div>
+            </div>
 
-                <div>
-                    <label class="block font-bold mb-1">TARGET DATE & TIME:</label>
-                    <input type="datetime-local" id="msDateTime" required class="w-full bg-black border border-[var(--theme-color)] p-2 text-[var(--theme-color)]">
-                </div>
-
-                <div>
-                    <label class="block font-bold mb-1">ACCENT TAG:</label>
-                    <select id="msTag" class="w-full bg-black border border-[var(--theme-color)] p-2 text-[var(--theme-color)]">
-                        <option value="PTO">PTO / LEAVE</option>
-                        <option value="HOLIDAY">HOLIDAY</option>
-                        <option value="PROJECT">PROJECT DEADLINE</option>
-                        <option value="MILESTONE">GENERAL MILESTONE</option>
-                    </select>
-                </div>
-
-                <div class="pt-2 flex justify-end gap-2">
-                    <button type="button" onclick="closeMilestoneModal()" class="term-btn px-3 py-1">[CANCEL]</button>
-                    <button type="submit" class="term-btn term-btn-active px-4 py-1">[COMMIT_TARGET]</button>
-                </div>
-            </form>
+            <div class="flex justify-end gap-2 pt-3 border-t term-border">
+                <button onclick="closeNewMilestoneModal()" class="term-btn text-xs">CANCEL</button>
+                <button onclick="saveNewMilestone()" class="term-btn font-bold text-xs">[SAVE MILESTONE]</button>
+            </div>
         </div>
     </div>
 
-    <!-- JS ENGINE LOGIC -->
+
+    <!-- ========================================== -->
+    <!-- APPLICATION JAVASCRIPT                     -->
+    <!-- ========================================== -->
     <script>
-        // CONFIGURATION STATE
+        // Default Configuration Object
         const DEFAULT_CONFIG = {
-            shiftStart: "07:00",
-            shiftEndNormal: "16:30",
-            shiftEndShortThu: "15:30",
-            lunchStart: "12:00",
+            theme: 'green',
+            shiftStart: '07:00',
+            shiftEnd: '16:30',
+            shortThuEnd: '15:30',
+            lunchStart: '11:30',
             lunchMins: 30,
-            // Anchor date: A known RDO Friday (e.g. 2026-03-20 or calculated)
-            anchorRdoDate: getNearestFridayStr()
+            rdoAnchor: '2026-11-20', // Week 2 Friday RDO anchor date
+            paydayAnchor: '2026-11-20', // Payday anchor date
+            careerStart: '2019-07-01',
+            retireTarget: '2054-07-02T16:30' // 67th Birthday
         };
 
-        let sysConfig = JSON.parse(localStorage.getItem("workday_549_config")) || { ...DEFAULT_CONFIG };
-        let userMilestones = JSON.parse(localStorage.getItem("workday_549_milestones")) || [
-            { id: 1, label: "Memorial Day Holiday", datetime: "2026-05-25T16:30", tag: "HOLIDAY" },
-            { id: 2, label: "Summer PTO Vacation", datetime: "2026-07-03T15:30", tag: "PTO" }
+        // Default Target Milestones
+        const DEFAULT_MILESTONES = [
+            {
+                id: 'm1',
+                title: 'THANKSGIVING BREAK 2026',
+                start: '2026-11-01T07:00',
+                target: '2026-11-25T15:30'
+            },
+            {
+                id: 'm2',
+                title: 'CHRISTMAS & WOLF CREEK TRIP 2026',
+                start: '2026-11-26T07:00',
+                target: '2026-12-23T15:30'
+            },
+            {
+                id: 'm3',
+                title: 'SUMMER SOLSTICE VACATION 2027',
+                start: '2027-01-01T07:00',
+                target: '2027-06-18T16:30'
+            }
         ];
 
-        let themeState = localStorage.getItem("workday_549_theme") || "green";
-        let scanlinesActive = localStorage.getItem("workday_549_scanlines") !== "off";
+        // Global State
+        let config = { ...DEFAULT_CONFIG };
+        let milestones = [ ...DEFAULT_MILESTONES ];
+        let activeMilestoneIdx = 0;
 
-        // Auxiliary Helper to get nearest Friday YYYY-MM-DD
-        function getNearestFridayStr() {
-            const d = new Date();
-            const day = d.getDay();
-            const diffToFri = (5 - day + 7) % 7;
-            d.setDate(d.getDate() + diffToFri);
-            return d.toISOString().split('T')[0];
-        }
+        // Initialize App
+        window.onload = function() {
+            loadStoredData();
+            applyTheme(config.theme);
+            populateConfigModalFields();
+            renderMilestonesQueue();
 
-        // INITIALIZATION
-        window.addEventListener("load", () => {
-            setTheme(themeState);
-            applyScanlinesState();
-            updateDashboard();
-            setInterval(updateDashboard, 100); // 100ms for smooth 1/10th sec chronometer
-        });
+            // Main Loop tick (10Hz for smooth microsecond update)
+            setInterval(tick, 100);
+            tick();
+        };
 
-        // THEME MANAGEMENT
-        function setTheme(theme) {
-            themeState = theme;
-            localStorage.setItem("workday_549_theme", theme);
-            document.body.classList.remove("theme-green", "theme-amber", "theme-cyan");
-            document.body.classList.add(`theme-${theme}`);
-
-            document.getElementById("btnThemeGreen").classList.toggle("term-btn-active", theme === "green");
-            document.getElementById("btnThemeAmber").classList.toggle("term-btn-active", theme === "amber");
-            document.getElementById("btnThemeCyan").classList.toggle("term-btn-active", theme === "cyan");
-        }
-
-        function toggleScanlines() {
-            scanlinesActive = !scanlinesActive;
-            localStorage.setItem("workday_549_scanlines", scanlinesActive ? "on" : "off");
-            applyScanlinesState();
-        }
-
-        function applyScanlinesState() {
-            const overlay = document.getElementById("scanlineOverlay");
-            const btn = document.getElementById("btnScanlines");
-            if (scanlinesActive) {
-                overlay.style.display = "block";
-                btn.innerText = "[CRT: ON]";
-                btn.classList.add("term-btn-active");
-            } else {
-                overlay.style.display = "none";
-                btn.innerText = "[CRT: OFF]";
-                btn.classList.remove("term-btn-active");
-            }
-        }
-
-        // RDO QUICK SYNC TOGGLE
-        function toggleRdoSync() {
-            // Check if current week's Friday is currently evaluated as RDO
-            const now = new Date();
-            const thisFri = getFridayOfWeek(now, 0);
-            const anchorDate = new Date(sysConfig.anchorRdoDate + "T00:00:00");
-            
-            // Calculate day difference to anchor
-            const diffDays = Math.round((thisFri - anchorDate) / (1000 * 60 * 60 * 24));
-            const isThisFriRdo = Math.abs(diffDays % 14) === 0;
-
-            if (isThisFriRdo) {
-                // Shift anchor by 7 days so next Friday becomes RDO
-                const newAnchor = new Date(thisFri);
-                newAnchor.setDate(newAnchor.getDate() + 7);
-                sysConfig.anchorRdoDate = newAnchor.toISOString().split('T')[0];
-            } else {
-                // Set anchor to this Friday
-                sysConfig.anchorRdoDate = thisFri.toISOString().split('T')[0];
-            }
-
-            localStorage.setItem("workday_549_config", JSON.stringify(sysConfig));
-            updateDashboard();
-        }
-
-        function getFridayOfWeek(dateObj, weekOffset = 0) {
-            const d = new Date(dateObj);
-            const day = d.getDay(); // 0 Sun, 1 Mon... 5 Fri
-            const distance = 5 - day;
-            d.setDate(d.getDate() + distance + (weekOffset * 7));
-            d.setHours(0, 0, 0, 0);
-            return d;
-        }
-
-        // CORE 5/4/9 MODULO-14 CALCULATION ENGINE
-        function getDayScheduleInfo(targetDate) {
-            // Returns: { isWorkday, workHours, isShortThu, isRdoFri, isWeekend, weekNum, dayName, shiftStart, shiftEnd }
-            const date = new Date(targetDate);
-            date.setHours(0,0,0,0);
-
-            const anchor = new Date(sysConfig.anchorRdoDate + "T00:00:00");
-            
-            // Calculate difference in calendar days from anchor RDO Friday
-            const diffMs = date - anchor;
-            const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
-
-            // Modulo 14 math. The anchor date is Week 2 Friday (RDO OFF).
-            // Let's normalize modulo so anchor date is index 11 (W2 Fri).
-            // W1 Mon(0), Tue(1), Wed(2), Thu(3), Fri(4), Sat(5), Sun(6)
-            // W2 Mon(7), Tue(8), Wed(9), Thu(10 - Short Thu), Fri(11 - RDO), Sat(12), Sun(13)
-            let cycleIndex = (diffDays + 11) % 14;
-            if (cycleIndex < 0) cycleIndex += 14;
-
-            const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-            const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-
-            let isWorkday = false;
-            let workHours = 0;
-            let isShortThu = false;
-            let isRdoFri = false;
-            let shiftEnd = sysConfig.shiftEndNormal;
-
-            if (!isWeekend) {
-                if (cycleIndex === 11) {
-                    // Week 2 Friday: RDO OFF
-                    isRdoFri = true;
-                    isWorkday = false;
-                    workHours = 0;
-                } else if (cycleIndex === 10) {
-                    // Week 2 Thursday: Short Thursday (8 hours, off 1hr early)
-                    isShortThu = true;
-                    isWorkday = true;
-                    workHours = 8.0;
-                    shiftEnd = sysConfig.shiftEndShortThu;
-                } else {
-                    // Normal 9-hour workday (W1 Mon-Fri, W2 Mon-Wed)
-                    isWorkday = true;
-                    workHours = 9.0;
-                    shiftEnd = sysConfig.shiftEndNormal;
+        // Persistence Functions
+        function loadStoredData() {
+            try {
+                const storedCfg = localStorage.getItem('wt_config');
+                if (storedCfg) {
+                    config = { ...DEFAULT_CONFIG, ...JSON.parse(storedCfg) };
                 }
+                const storedMs = localStorage.getItem('wt_milestones');
+                if (storedMs) {
+                    milestones = JSON.parse(storedMs);
+                }
+            } catch (e) {
+                console.error('Error loading localStorage:', e);
             }
+        }
 
-            const weekNum = (cycleIndex < 7) ? 1 : 2;
+        function saveConfig() {
+            try {
+                localStorage.setItem('wt_config', JSON.stringify(config));
+            } catch (e) {
+                console.error('Error saving config:', e);
+            }
+        }
+
+        function saveMilestones() {
+            try {
+                localStorage.setItem('wt_milestones', JSON.stringify(milestones));
+            } catch (e) {
+                console.error('Error saving milestones:', e);
+            }
+        }
+
+        // Theme Switcher
+        function setTheme(t) {
+            config.theme = t;
+            saveConfig();
+            applyTheme(t);
+        }
+
+        function applyTheme(t) {
+            document.body.classList.remove('theme-green', 'theme-amber', 'theme-grey');
+            document.body.classList.add(`theme-${t}`);
+
+            document.getElementById('themeBtn-green').classList.toggle('term-btn-active', t === 'green');
+            document.getElementById('themeBtn-amber').classList.toggle('term-btn-active', t === 'amber');
+            document.getElementById('themeBtn-grey').classList.toggle('term-btn-active', t === 'grey');
+        }
+
+        // Helper Time Parsers
+        function parseTimeStr(tStr) {
+            const [h, m] = tStr.split(':').map(Number);
+            return { h, m };
+        }
+
+        function formatTwoDigits(num) {
+            return String(Math.floor(num)).padStart(2, '0');
+        }
+
+        // RDO & 5/4/9 Cycle Logic
+        // Biweekly cycle: 14 days starting on a Week 1 Monday (which is 11 days before Week 2 Friday RDO)
+        function getRdoCycleInfo(dateObj) {
+            const rdoAnchor = new Date(config.rdoAnchor + 'T00:00:00');
+            // Day diff relative to RDO Friday anchor
+            const dayMs = 86400000;
+            const diffDays = Math.floor((dateObj - rdoAnchor) / dayMs);
+            
+            // Normalize to 14-day cycle where RDO Friday is Day 11 (index 11, day 0 = Week 1 Mon)
+            let cycleDay = (diffDays % 14 + 14) % 14; 
+            // In this indexing:
+            // RDO Friday is cycleDay 11 (assuming anchor is Fri).
+            // Week 1: Day 0 (Mon), 1 (Tue), 2 (Wed), 3 (Thu), 4 (Fri)
+            // Week 2: Day 7 (Mon), 8 (Tue), 9 (Wed), 10 (Thu - Short), 11 (Fri - RDO)
+            // Weekends: Day 5,6 (W1 Sat, Sun), Day 12,13 (W2 Sat, Sun)
+
+            const isWeek2 = (cycleDay >= 7);
+            const dayOfWeek = dateObj.getDay(); // 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
+
+            const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+            const isRdoFriday = (dayOfWeek === 5 && isWeek2);
+            const isShortThursday = (dayOfWeek === 4 && isWeek2);
 
             return {
-                cycleIndex,
-                weekNum,
-                dayOfWeek,
-                isWorkday,
-                workHours,
-                isShortThu,
-                isRdoFri,
+                cycleDay,
+                isWeek2,
                 isWeekend,
-                shiftStart: sysConfig.shiftStart,
-                shiftEnd: shiftEnd
+                isRdoFriday,
+                isShortThursday
             };
         }
 
-        // MAIN UPDATE TELEMETRY LOOP
-        function updateDashboard() {
+        function toggleRdoSync() {
+            // Toggles between current Friday being RDO vs next Friday being RDO
+            const now = new Date();
+            const dayOfWeek = now.getDay();
+            
+            // Find closest Friday
+            const thisFri = new Date(now);
+            const daysUntilFri = (5 - dayOfWeek + 7) % 7;
+            thisFri.setDate(thisFri.getDate() + daysUntilFri);
+            const friStr = thisFri.toISOString().split('T')[0];
+
+            const currentInfo = getRdoCycleInfo(now);
+            if (currentInfo.isWeek2) {
+                // Currently set as RDO week, shift anchor by 7 days to make next week RDO
+                const nextAnchor = new Date(thisFri);
+                nextAnchor.setDate(nextAnchor.getDate() + 7);
+                config.rdoAnchor = nextAnchor.toISOString().split('T')[0];
+            } else {
+                // Make this Friday RDO anchor
+                config.rdoAnchor = friStr;
+            }
+            saveConfig();
+            populateConfigModalFields();
+            tick();
+        }
+
+        // Net duty hours calculator for a single date
+        function getDutyHoursForDay(dObj) {
+            const day = dObj.getDay();
+            if (day === 0 || day === 6) return 0; // Weekend
+
+            const info = getRdoCycleInfo(dObj);
+            if (info.isRdoFriday) return 0; // RDO Off day
+            if (info.isShortThursday) return 8.0; // Short Thursday (Ends 1 hour early)
+
+            return 9.0; // Standard 9-hour day
+        }
+
+        // MAIN TICKER LOOP
+        function tick() {
             const now = new Date();
 
-            // 1. Update UTC Clock
-            document.getElementById("sysUtcClock").innerText = now.toUTCString().split(' ')[4] + " UTC";
+            // 1. Update Header Clock & Buttons
+            updateHeader(now);
 
-            // 2. Evaluate Today's Schedule
-            const todayInfo = getDayScheduleInfo(now);
-            
-            // Sync Quick RDO Toggle Text
-            const thisFri = getFridayOfWeek(now, 0);
-            const thisFriInfo = getDayScheduleInfo(thisFri);
-            const btnRdo = document.getElementById("btnRdoSync");
-            if (thisFriInfo.isRdoFri) {
-                btnRdo.innerText = "RDO SYNC: [THIS FRIDAY IS RDO]";
-                btnRdo.className = "term-btn px-2 py-1 text-green-400 border-green-400";
-            } else {
-                btnRdo.innerText = "RDO SYNC: [NEXT FRIDAY IS RDO]";
-                btnRdo.className = "term-btn px-2 py-1 text-yellow-400 border-yellow-400";
-            }
+            // 2. Section 1: Today's Shift Telemetry
+            updateShiftTelemetry(now);
 
-            // 3. Update Primary Chronometer and Today's Shift Status
-            updatePrimaryShiftTelemetry(now, todayInfo);
+            // 3. Section 2A: Unified Weekend Countdown
+            updateWeekendTelemetry(now);
 
-            // 4. Update 14-Day Matrix & 80-Hour Tracker
-            updatePayPeriodMatrix(now, todayInfo);
+            // 4. Section 2B & 2C: Payday & 80-Hour Matrix
+            updatePaydayAndMatrix(now);
 
-            // 5. Update Dual Weekend Countdowns
-            updateDualWeekendCountdowns(now, todayInfo);
+            // 5. Section 3: Target Milestone
+            updateMilestoneTelemetry(now);
 
-            // 6. Update Custom Target Log
-            renderMilestones(now);
+            // 6. Section 4: Retirement Horizon
+            updateRetirementTelemetry(now);
         }
 
-        // PRIMARY SHIFT TELEMETRY BUILDER
-        function updatePrimaryShiftTelemetry(now, todayInfo) {
-            const clockEl = document.getElementById("mainShiftClock");
-            const bannerEl = document.getElementById("statusBanner");
-            const tagEl = document.getElementById("shiftTypeTag");
-            const rangeSub = document.getElementById("shiftTimeRangeSub");
-            const clockLabel = document.getElementById("clockLabel");
+        // 1. HEADER TICK
+        function updateHeader(now) {
+            const dateStr = now.toISOString().split('T')[0];
+            const timeStr = now.toTimeString().split(' ')[0];
+            const msStr = String(now.getMilliseconds()).padStart(3, '0');
+            document.getElementById('topClock').innerText = `${dateStr} ${timeStr}.${msStr}`;
 
-            if (!todayInfo.isWorkday) {
-                // OFF DUTY / WEEKEND / RDO
-                let statusText = ">> STATUS: OFF_DUTY // NON-WORK DAY";
-                let tagText = "OFF_DUTY";
-                
-                if (todayInfo.isRdoFri) {
-                    statusText = ">> STATUS: RDO_FRIDAY // 3-DAY WEEKEND IN PROGRESS";
-                    tagText = "RDO_FRIDAY_OFF";
-                } else if (todayInfo.isWeekend) {
-                    statusText = ">> STATUS: WEEKEND // OFF DUTY";
-                    tagText = "WEEKEND";
-                }
-
-                bannerEl.innerText = statusText;
-                bannerEl.className = "font-bold text-sm md:text-base mb-3 p-2 border border-cyan-400 bg-cyan-950/30 text-cyan-400 term-glow";
-                tagEl.innerText = tagText;
-                clockLabel.innerText = "NEXT SHIFT STARTS IN";
-                rangeSub.innerText = `NEXT SHIFT START: ${sysConfig.shiftStart} (TOMORROW/WORKDAY)`;
-
-                // Calculate time until next shift start
-                const nextShiftStart = getNextShiftStartDate(now);
-                const diffMs = Math.max(0, nextShiftStart - now);
-                clockEl.innerText = formatTimeMs(diffMs);
-
-                // Progress visuals for off duty
-                document.getElementById("shiftPctVal").innerText = "100.000%";
-                document.getElementById("shiftAsciiBar").innerText = renderAsciiBar(100);
-                document.getElementById("metricElapsed").innerText = `${todayInfo.workHours.toFixed(2)} HRS`;
-                document.getElementById("metricRemaining").innerText = "0.00 HRS";
-                document.getElementById("metricLunch").innerText = "N/A";
-                document.getElementById("metricShiftDuty").innerText = `${todayInfo.workHours.toFixed(2)} HRS`;
-                return;
+            const info = getRdoCycleInfo(now);
+            const rdoBtn = document.getElementById('rdoSyncBtn');
+            if (info.isWeek2) {
+                rdoBtn.innerText = `RDO SYNC: [THIS FRI IS RDO]`;
+                rdoBtn.className = "term-btn term-btn-active";
+            } else {
+                rdoBtn.innerText = `RDO SYNC: [NEXT FRI IS RDO]`;
+                rdoBtn.className = "term-btn";
             }
+        }
 
-            // TODAY IS A WORKDAY
-            tagEl.innerText = todayInfo.isShortThu ? "SHORT_THU_8HR" : "STANDARD_9HR";
-            rangeSub.innerText = `SHIFT WINDOW: ${todayInfo.shiftStart} - ${todayInfo.shiftEnd} (${sysConfig.lunchMins}M LUNCH)`;
+        // 2. SECTION 1: TODAY'S SHIFT TELEMETRY
+        function updateShiftTelemetry(now) {
+            const info = getRdoCycleInfo(now);
+            const dayOfWeek = now.getDay();
+            const todayStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+            document.getElementById('todayDateLabel').innerText = todayStr.toUpperCase();
 
-            const startTime = parseTimeString(now, todayInfo.shiftStart);
-            const endTime = parseTimeString(now, todayInfo.shiftEnd);
-            
-            // Lunch times
-            const lunchStart = parseTimeString(now, sysConfig.lunchStart);
-            const lunchEnd = new Date(lunchStart.getTime() + sysConfig.lunchMins * 60000);
+            const startParts = parseTimeStr(config.shiftStart);
+            const lunchParts = parseTimeStr(config.lunchStart);
+            const endParts = info.isShortThursday ? parseTimeStr(config.shortThuEnd) : parseTimeStr(config.shiftEnd);
 
-            if (now < startTime) {
-                // BEFORE SHIFT
-                bannerEl.innerText = `>> STATUS: PRE_SHIFT // SHIFT STARTS AT ${todayInfo.shiftStart}`;
-                bannerEl.className = "font-bold text-sm md:text-base mb-3 p-2 border border-yellow-400 bg-yellow-950/30 text-yellow-400 term-glow";
-                clockLabel.innerText = "TIME UNTIL SHIFT START";
-                clockEl.innerText = formatTimeMs(startTime - now);
+            // Construct Date Objects for today's shift bounds
+            const shiftStart = new Date(now);
+            shiftStart.setHours(startParts.h, startParts.m, 0, 0);
 
-                document.getElementById("shiftPctVal").innerText = "0.000%";
-                document.getElementById("shiftAsciiBar").innerText = renderAsciiBar(0);
-                document.getElementById("metricElapsed").innerText = "0.00 HRS";
-                document.getElementById("metricRemaining").innerText = `${todayInfo.workHours.toFixed(2)} HRS`;
-                document.getElementById("metricLunch").innerText = "PENDING";
-                document.getElementById("metricShiftDuty").innerText = `${todayInfo.workHours.toFixed(2)} HRS`;
+            const shiftEnd = new Date(now);
+            shiftEnd.setHours(endParts.h, endParts.m, 0, 0);
 
-            } else if (now >= startTime && now <= endTime) {
-                // ACTIVE IN SHIFT
-                let statusText = todayInfo.isShortThu ? 
-                    ">> STATUS: ACTIVE_SHIFT // SHORT THU (EARLY DEPARTURE)" : 
-                    ">> STATUS: ACTIVE_SHIFT // IN SHIFT";
-                
-                bannerEl.innerText = statusText;
-                bannerEl.className = "font-bold text-sm md:text-base mb-3 p-2 border border-[var(--theme-color)] bg-black/60 text-[var(--theme-color)] term-glow";
-                clockLabel.innerText = "COUNTDOWN TO FREEDOM (SHIFT END)";
+            const lunchStart = new Date(now);
+            lunchStart.setHours(lunchParts.h, lunchParts.m, 0, 0);
 
-                const remMs = endTime - now;
-                clockEl.innerText = formatTimeMs(remMs);
+            const lunchEnd = new Date(lunchStart.getTime() + config.lunchMins * 60000);
 
-                // Calculate Net Work Elapsed & Remaining
-                const totalShiftMs = endTime - startTime;
-                const totalLunchMs = sysConfig.lunchMins * 60000;
-                const totalWorkMs = totalShiftMs - totalLunchMs;
+            const totalDutyMins = (shiftEnd - shiftStart - (config.lunchMins * 60000)) / 60000;
+            const totalDutyHours = (totalDutyMins / 60).toFixed(2);
 
-                let elapsedWorkMs = 0;
-                let lunchStatusStr = "PENDING";
+            // Metadata updates
+            document.getElementById('metaShiftWindow').innerText = `${config.shiftStart} - ${info.isShortThursday ? config.shortThuEnd : config.shiftEnd}`;
+            document.getElementById('metaLunchWindow').innerText = `${config.lunchStart} (${config.lunchMins}m)`;
 
-                if (now < lunchStart) {
-                    elapsedWorkMs = now - startTime;
-                    lunchStatusStr = "PENDING";
-                } else if (now >= lunchStart && now <= lunchEnd) {
-                    elapsedWorkMs = lunchStart - startTime;
-                    lunchStatusStr = "ACTIVE NOW";
+            let statusText = "";
+            let countdownStr = "00 : 00 : 00 . 0";
+            let progressPct = 0;
+            let netElapsedHours = 0;
+            let netRemHours = 0;
+
+            if (info.isWeekend) {
+                statusText = "WEEKEND // OFF DUTY";
+                document.getElementById('metaShiftType').innerText = "WEEKEND OFF";
+                netRemHours = 0;
+                netElapsedHours = 0;
+            } else if (info.isRdoFriday) {
+                statusText = "RDO FRIDAY // OFF DAY";
+                document.getElementById('metaShiftType').innerText = "RDO FRIDAY OFF";
+                netRemHours = 0;
+                netElapsedHours = 0;
+            } else {
+                // Scheduled Workday
+                document.getElementById('metaShiftType').innerText = info.isShortThursday ? "SHORT THU (8.0h)" : "STANDARD (9.0h)";
+
+                if (now < shiftStart) {
+                    statusText = "PRE-SHIFT // PENDING START";
+                    const diffMs = shiftStart - now;
+                    countdownStr = formatCountdown(diffMs);
+                    progressPct = 0;
+                    netElapsedHours = 0;
+                    netRemHours = parseFloat(totalDutyHours);
+                } else if (now >= shiftEnd) {
+                    statusText = "SHIFT COMPLETED // OFF DUTY";
+                    countdownStr = "00 : 00 : 00 . 0";
+                    progressPct = 100;
+                    netElapsedHours = parseFloat(totalDutyHours);
+                    netRemHours = 0;
                 } else {
-                    // After lunch
-                    elapsedWorkMs = (now - startTime) - totalLunchMs;
-                    lunchStatusStr = "COMPLETED";
-                }
-
-                elapsedWorkMs = Math.max(0, Math.min(totalWorkMs, elapsedWorkMs));
-                const remWorkMs = totalWorkMs - elapsedWorkMs;
-
-                const pct = (elapsedWorkMs / totalWorkMs) * 100;
-
-                document.getElementById("shiftPctVal").innerText = `${pct.toFixed(3)}%`;
-                document.getElementById("shiftAsciiBar").innerText = renderAsciiBar(pct);
-                document.getElementById("metricElapsed").innerText = `${(elapsedWorkMs / 3600000).toFixed(2)} HRS`;
-                document.getElementById("metricRemaining").innerText = `${(remWorkMs / 3600000).toFixed(2)} HRS`;
-                document.getElementById("metricLunch").innerText = lunchStatusStr;
-                document.getElementById("metricShiftDuty").innerText = `${todayInfo.workHours.toFixed(2)} HRS`;
-
-            } else {
-                // POST SHIFT (ENDED TODAY)
-                bannerEl.innerText = ">> STATUS: SHIFT_COMPLETE // DAY SHIFT ENDED";
-                bannerEl.className = "font-bold text-sm md:text-base mb-3 p-2 border border-green-400 bg-green-950/30 text-green-400 term-glow";
-                clockLabel.innerText = "SHIFT COMPLETE";
-                clockEl.innerText = "00:00:00.0";
-
-                document.getElementById("shiftPctVal").innerText = "100.000%";
-                document.getElementById("shiftAsciiBar").innerText = renderAsciiBar(100);
-                document.getElementById("metricElapsed").innerText = `${todayInfo.workHours.toFixed(2)} HRS`;
-                document.getElementById("metricRemaining").innerText = "0.00 HRS";
-                document.getElementById("metricLunch").innerText = "DONE";
-                document.getElementById("metricShiftDuty").innerText = `${todayInfo.workHours.toFixed(2)} HRS`;
-            }
-        }
-
-        // 14-DAY MATRIX & 80-HOUR TRACKER
-        function updatePayPeriodMatrix(now, todayInfo) {
-            // Find start of current 14-day cycle
-            const anchor = new Date(sysConfig.anchorRdoDate + "T00:00:00");
-            const todayZero = new Date(now);
-            todayZero.setHours(0,0,0,0);
-
-            const diffDays = Math.round((todayZero - anchor) / (1000 * 60 * 60 * 24));
-            let cycleIndex = (diffDays + 11) % 14;
-            if (cycleIndex < 0) cycleIndex += 14;
-
-            // Cycle start date (Week 1 Monday)
-            const cycleStartDate = new Date(todayZero);
-            cycleStartDate.setDate(cycleStartDate.getDate() - cycleIndex);
-
-            document.getElementById("ppCycleTag").innerText = (cycleIndex < 7) ? "[WEEK 1 OF 2]" : "[WEEK 2 OF 2]";
-
-            let totalLoggedHrs = 0;
-            const gridW1 = document.getElementById("gridWeek1");
-            const gridW2 = document.getElementById("gridWeek2");
-            gridW1.innerHTML = "";
-            gridW2.innerHTML = "";
-
-            const dayNames = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
-
-            for (let i = 0; i < 14; i++) {
-                const dayDate = new Date(cycleStartDate);
-                dayDate.setDate(dayDate.getDate() + i);
-                
-                const info = getDayScheduleInfo(dayDate);
-                const isPast = dayDate < todayZero;
-                const isToday = dayDate.getTime() === todayZero.getTime();
-
-                let dayLoggedHrs = 0;
-                let badgeStr = "";
-                let boxBorderClass = "border-[var(--theme-dim)] text-opacity-70";
-
-                if (info.isWorkday) {
-                    if (isPast) {
-                        dayLoggedHrs = info.workHours;
-                        badgeStr = "[DONE]";
-                        boxBorderClass = "border-[var(--theme-color)] bg-[var(--theme-dim)]/40";
-                    } else if (isToday) {
-                        // Partial shift logged today
-                        const startTime = parseTimeString(now, info.shiftStart);
-                        const endTime = parseTimeString(now, info.shiftEnd);
-                        const totalWorkMs = info.workHours * 3600000;
-
-                        if (now >= endTime) {
-                            dayLoggedHrs = info.workHours;
-                        } else if (now > startTime) {
-                            const lunchStart = parseTimeString(now, sysConfig.lunchStart);
-                            const lunchEnd = new Date(lunchStart.getTime() + sysConfig.lunchMins * 60000);
-                            let elapsed = now - startTime;
-                            if (now > lunchStart && now < lunchEnd) {
-                                elapsed = lunchStart - startTime;
-                            } else if (now >= lunchEnd) {
-                                elapsed -= (sysConfig.lunchMins * 60000);
-                            }
-                            dayLoggedHrs = Math.max(0, Math.min(info.workHours, elapsed / 3600000));
-                        }
-                        badgeStr = "[TODAY]";
-                        boxBorderClass = "border-yellow-400 bg-yellow-950/40 font-bold term-glow";
+                    // Active Shift
+                    if (now >= lunchStart && now < lunchEnd) {
+                        statusText = "LUNCH BREAK // IN PROGRESS";
                     } else {
-                        badgeStr = info.isShortThu ? "[8H -1HR]" : `[${info.workHours}H]`;
-                        boxBorderClass = info.isShortThu ? "border-amber-400/60" : "border-[var(--theme-dim)]";
+                        statusText = "ACTIVE SHIFT // ON DUTY";
                     }
-                } else if (info.isRdoFri) {
-                    badgeStr = "[RDO OFF]";
-                    boxBorderClass = "border-cyan-400 bg-cyan-950/40 text-cyan-400 font-bold";
+
+                    const diffMs = shiftEnd - now;
+                    countdownStr = formatCountdown(diffMs);
+
+                    // Compute elapsed net duty time excluding lunch
+                    let elapsedMins = (now - shiftStart) / 60000;
+                    if (now >= lunchEnd) {
+                        elapsedMins -= config.lunchMins;
+                    } else if (now >= lunchStart) {
+                        elapsedMins -= ((now - lunchStart) / 60000);
+                    }
+                    netElapsedHours = Math.max(0, (elapsedMins / 60));
+                    netRemHours = Math.max(0, parseFloat(totalDutyHours) - netElapsedHours);
+                    progressPct = Math.min(100, Math.max(0, (netElapsedHours / parseFloat(totalDutyHours)) * 100));
+                }
+            }
+
+            document.getElementById('shiftStatusBadge').innerText = statusText;
+            document.getElementById('eodCountdownDisplay').innerText = countdownStr;
+            document.getElementById('eodProgressText').innerText = `${progressPct.toFixed(2)}%`;
+            document.getElementById('eodProgressBar').style.width = `${progressPct}%`;
+            document.getElementById('metaDutyHours').innerText = `${netElapsedHours.toFixed(2)}h / ${netRemHours.toFixed(2)}h`;
+        }
+
+        // 3. SECTION 2A: UNIFIED NEXT WEEKEND COUNTDOWN
+        function updateWeekendTelemetry(now) {
+            const info = getRdoCycleInfo(now);
+
+            // Determine target weekend launch date & time
+            // If we are currently in Week 2, weekend launches Short Thursday at shortThuEnd
+            // If we are currently in Week 1, weekend launches Friday at shiftEnd
+            let weekendLaunch = new Date(now);
+
+            if (info.isWeek2) {
+                // Target is Short Thursday of this week or next week
+                // Find Thursday of current week
+                const dayOfWeek = now.getDay();
+                const thuDiff = (4 - dayOfWeek);
+                weekendLaunch.setDate(weekendLaunch.getDate() + thuDiff);
+
+                const endParts = parseTimeStr(config.shortThuEnd);
+                weekendLaunch.setHours(endParts.h, endParts.m, 0, 0);
+
+                // If passed this Thursday's shift end, target is next week's Friday standard weekend
+                if (now >= weekendLaunch && dayOfWeek >= 4) {
+                    // Weekend already active or passed; find next week's Friday
+                    weekendLaunch = getNextWeekendLaunchDate(now);
+                }
+            } else {
+                // Target is Friday of Week 1
+                const dayOfWeek = now.getDay();
+                const friDiff = (5 - dayOfWeek);
+                weekendLaunch.setDate(weekendLaunch.getDate() + friDiff);
+
+                const endParts = parseTimeStr(config.shiftEnd);
+                weekendLaunch.setHours(endParts.h, endParts.m, 0, 0);
+
+                if (now >= weekendLaunch) {
+                    weekendLaunch = getNextWeekendLaunchDate(now);
+                }
+            }
+
+            const isLaunch3DayRdo = getRdoCycleInfo(new Date(weekendLaunch.getTime() - 3600000)).isWeek2;
+            const badgeLabel = isLaunch3DayRdo 
+                ? `[3-DAY RDO WEEKEND // LAUNCHES THU ${config.shortThuEnd}]` 
+                : `[2-DAY WEEKEND // LAUNCHES FRI ${config.shiftEnd}]`;
+
+            document.getElementById('weekendBadge').innerText = badgeLabel;
+
+            const diffMs = weekendLaunch - now;
+            if (diffMs <= 0) {
+                document.getElementById('weekendCountdown').innerText = "00d 00h : 00m : 00s";
+                document.getElementById('weekendDutyHoursVal').innerText = "0.0 hrs (IN WEEKEND)";
+                document.getElementById('weeklyProgressText').innerText = "100.00%";
+                document.getElementById('weeklyProgressBar').style.width = "100%";
+            } else {
+                document.getElementById('weekendCountdown').innerText = formatDaysCountdown(diffMs);
+
+                // Work hours remaining until weekend
+                const remDutyHours = calculateNetDutyHoursBetween(now, weekendLaunch);
+                document.getElementById('weekendDutyHoursVal').innerText = `${remDutyHours.toFixed(1)} hrs`;
+
+                // Progress bar for current work week
+                const weekStart = new Date(weekendLaunch);
+                weekStart.setDate(weekStart.getDate() - (isLaunch3DayRdo ? 3 : 4)); // Mon start
+                weekStart.setHours(parseTimeStr(config.shiftStart).h, parseTimeStr(config.shiftStart).m, 0, 0);
+
+                const weekTotalMs = weekendLaunch - weekStart;
+                const weekElapsedMs = Math.max(0, now - weekStart);
+                const weekPct = Math.min(100, Math.max(0, (weekElapsedMs / weekTotalMs) * 100));
+
+                document.getElementById('weeklyProgressText').innerText = `${weekPct.toFixed(2)}%`;
+                document.getElementById('weeklyProgressBar').style.width = `${weekPct}%`;
+            }
+        }
+
+        function getNextWeekendLaunchDate(fromDate) {
+            let cursor = new Date(fromDate);
+            for (let i = 0; i < 14; i++) {
+                const info = getRdoCycleInfo(cursor);
+                if (info.isShortThursday) {
+                    const launch = new Date(cursor);
+                    const endParts = parseTimeStr(config.shortThuEnd);
+                    launch.setHours(endParts.h, endParts.m, 0, 0);
+                    if (launch > fromDate) return launch;
+                } else if (cursor.getDay() === 5 && !info.isWeek2) {
+                    const launch = new Date(cursor);
+                    const endParts = parseTimeStr(config.shiftEnd);
+                    launch.setHours(endParts.h, endParts.m, 0, 0);
+                    if (launch > fromDate) return launch;
+                }
+                cursor.setDate(cursor.getDate() + 1);
+            }
+            return new Date(fromDate.getTime() + 86400000 * 2);
+        }
+
+        // 4. SECTION 2B & 2C: PAYDAY & 80-HOUR MATRIX
+        function updatePaydayAndMatrix(now) {
+            const paydayAnchor = new Date(config.paydayAnchor + 'T16:30:00');
+            const dayMs = 86400000 * 14;
+
+            let nextPayday = new Date(paydayAnchor);
+            while (nextPayday <= now) {
+                nextPayday = new Date(nextPayday.getTime() + dayMs);
+            }
+
+            const nextPlusOnePayday = new Date(nextPayday.getTime() + dayMs);
+
+            const paydayStr = nextPayday.toISOString().split('T')[0];
+            const paydayPlusOneStr = nextPlusOnePayday.toISOString().split('T')[0];
+
+            document.getElementById('paydayTargetLabel').innerText = `NEXT: ${paydayStr}`;
+            document.getElementById('paydayPlusOneLabel').innerText = paydayPlusOneStr;
+
+            const diffMs = nextPayday - now;
+            document.getElementById('paydayCountdown').innerText = formatDaysCountdown(diffMs);
+
+            const dutyHoursToPayday = calculateNetDutyHoursBetween(now, nextPayday);
+            document.getElementById('paydayDutyHoursVal').innerText = `${dutyHoursToPayday.toFixed(1)} hrs`;
+
+            const cycleStart = new Date(nextPayday.getTime() - dayMs);
+            const paydayElapsed = Math.max(0, now - cycleStart);
+            const paydayPct = Math.min(100, Math.max(0, (paydayElapsed / dayMs) * 100));
+
+            document.getElementById('paydayProgressText').innerText = `${paydayPct.toFixed(2)}%`;
+            document.getElementById('paydayProgressBar').style.width = `${paydayPct}%`;
+
+            // Render 14-Day Pay Period Matrix Grid
+            renderPayPeriodMatrix(now, cycleStart);
+        }
+
+        function renderPayPeriodMatrix(now, cycleStart) {
+            const matrixGrid = document.getElementById('payPeriodMatrixGrid');
+            let html = "";
+            let accumulatedHours = 0;
+
+            const dayNames = ['M', 'T', 'W', 'TH', 'F', 'SA', 'SU'];
+
+            for (let i = 0; i < 14; i++) {
+                const dayObj = new Date(cycleStart.getTime() + i * 86400000);
+                const isToday = (dayObj.toDateString() === now.toDateString());
+                const info = getRdoCycleInfo(dayObj);
+
+                let label = "";
+                let badge = "";
+                let hrs = 0;
+
+                if (info.isWeekend) {
+                    badge = "OFF";
+                    hrs = 0;
+                } else if (info.isRdoFriday) {
+                    badge = "RDO";
+                    hrs = 0;
+                } else if (info.isShortThursday) {
+                    badge = "8h";
+                    hrs = 8;
                 } else {
-                    badgeStr = "[OFF]";
-                    boxBorderClass = "border-gray-800 text-gray-600";
+                    badge = "9h";
+                    hrs = 9;
                 }
 
-                totalLoggedHrs += dayLoggedHrs;
+                // If day is in past or today, count duty hours accrued
+                if (dayObj < now) {
+                    if (isToday) {
+                        // Fraction of today elapsed
+                        const todayDuty = getDutyHoursForDay(dayObj);
+                        const startParts = parseTimeStr(config.shiftStart);
+                        const sTime = new Date(dayObj);
+                        sTime.setHours(startParts.h, startParts.m, 0, 0);
+                        const endParts = info.isShortThursday ? parseTimeStr(config.shortThuEnd) : parseTimeStr(config.shiftEnd);
+                        const eTime = new Date(dayObj);
+                        eTime.setHours(endParts.h, endParts.m, 0, 0);
 
-                const dayBoxHtml = `
-                    <div class="p-1 border text-center ${boxBorderClass}">
-                        <div class="font-bold">${dayNames[i % 7]}</div>
-                        <div class="text-[9px] opacity-75">${dayDate.getMonth()+1}/${dayDate.getDate()}</div>
-                        <div class="text-[9px] mt-0.5">${badgeStr}</div>
+                        if (now >= eTime) accumulatedHours += todayDuty;
+                        else if (now > sTime) {
+                            const ratio = (now - sTime) / (eTime - sTime);
+                            accumulatedHours += todayDuty * Math.min(1, Math.max(0, ratio));
+                        }
+                    } else {
+                        accumulatedHours += hrs;
+                    }
+                }
+
+                const dayHeader = `${i < 7 ? 'W1' : 'W2'}-${dayNames[i % 7]}`;
+                const highlightBg = isToday ? 'border-bright bg-main/20 text-main font-bold' : 'term-border bg-black/40';
+
+                html += `
+                    <div class="border ${highlightBg} p-1 flex flex-col justify-between">
+                        <div class="text-[9px] text-muted">${dayHeader}</div>
+                        <div class="font-bold my-0.5">${badge}</div>
+                        <div class="text-[9px] text-dim">${i === 13 ? '[$PAY$]' : `${hrs}h`}</div>
                     </div>
                 `;
-
-                if (i < 7) {
-                    gridW1.innerHTML += dayBoxHtml;
-                } else {
-                    gridW2.innerHTML += dayBoxHtml;
-                }
             }
 
-            // Total Pay Period Progress
-            const ppPct = Math.min(100, (totalLoggedHrs / 80.0) * 100);
-            const remHrs = Math.max(0, 80.0 - totalLoggedHrs);
+            matrixGrid.innerHTML = html;
 
-            document.getElementById("ppLoggedHrs").innerText = `${totalLoggedHrs.toFixed(2)} / 80.00 HRS`;
-            document.getElementById("ppPctVal").innerText = `${ppPct.toFixed(2)}%`;
-            document.getElementById("ppRemHrs").innerText = `${remHrs.toFixed(2)} HRS`;
-            document.getElementById("ppAsciiBar").innerText = renderAsciiBar(ppPct);
+            const eightyPct = Math.min(100, Math.max(0, (accumulatedHours / 80) * 100));
+            document.getElementById('eightyHourText').innerText = `${accumulatedHours.toFixed(1)} / 80.0 HRS (${eightyPct.toFixed(1)}%)`;
+            document.getElementById('eightyHourProgressBar').style.width = `${eightyPct}%`;
         }
 
-        // DUAL WEEKEND COUNTDOWN ENGINE
-        function updateDualWeekendCountdowns(now, todayInfo) {
-            // 1. Next Weekend Launch Target (End of current workweek shift)
-            // If Week 1: Friday shift end. If Week 2: Short Thursday shift end!
-            const nextWkndEnd = getNextWeekendLaunchTarget(now);
-            const diffWkndMs = Math.max(0, nextWkndEnd - now);
-
-            document.getElementById("wkndCountdown").innerText = formatTimeMs(diffWkndMs, true);
-            document.getElementById("wkndTargetSub").innerText = `TARGET: ${formatDateShort(nextWkndEnd)}`;
-            document.getElementById("wkndWorkHrsLeft").innerText = `${calculateRemainingWorkHours(now, nextWkndEnd).toFixed(1)} HRS`;
-
-            // 2. Next 3-Day RDO Weekend Target
-            const nextRdoEnd = getNextRdoLaunchTarget(now);
-            const diffRdoMs = Math.max(0, nextRdoEnd - now);
-
-            document.getElementById("rdoCountdown").innerText = formatTimeMs(diffRdoMs, true);
-            document.getElementById("rdoTargetSub").innerText = `TARGET: ${formatDateShort(nextRdoEnd)} (SHORT THU DEPARTURE)`;
-            document.getElementById("rdoWorkHrsLeft").innerText = `${calculateRemainingWorkHours(now, nextRdoEnd).toFixed(1)} HRS`;
-        }
-
-        function getNextWeekendLaunchTarget(now) {
-            // Find closest upcoming end of work week (Fri on W1, Thu on W2)
-            let check = new Date(now);
-            for (let i = 0; i < 14; i++) {
-                const info = getDayScheduleInfo(check);
-                if (info.isWorkday) {
-                    const shiftEnd = parseTimeString(check, info.shiftEnd);
-                    // Check if next day is not a workday (meaning check is the last workday before weekend)
-                    const tomorrow = new Date(check);
-                    tomorrow.setDate(tomorrow.getDate() + 1);
-                    const tomInfo = getDayScheduleInfo(tomorrow);
-
-                    if (!tomInfo.isWorkday && now <= shiftEnd) {
-                        return shiftEnd;
-                    }
-                }
-                check.setDate(check.getDate() + 1);
-            }
-            return new Date(now.getTime() + 86400000);
-        }
-
-        function getNextRdoLaunchTarget(now) {
-            // Target is the Short Thursday shift end date preceding an RDO Friday
-            let check = new Date(now);
-            for (let i = 0; i < 30; i++) {
-                const info = getDayScheduleInfo(check);
-                if (info.isShortThu) {
-                    const shiftEnd = parseTimeString(check, info.shiftEnd);
-                    if (now <= shiftEnd) {
-                        return shiftEnd;
-                    }
-                }
-                check.setDate(check.getDate() + 1);
-            }
-            return new Date(now.getTime() + 86400000);
-        }
-
-        function calculateRemainingWorkHours(now, targetDate) {
-            let cur = new Date(now);
-            let totalMs = 0;
-
-            while (cur < targetDate) {
-                const info = getDayScheduleInfo(cur);
-                if (info.isWorkday) {
-                    const shiftStart = parseTimeString(cur, info.shiftStart);
-                    const shiftEnd = parseTimeString(cur, info.shiftEnd);
-
-                    if (cur < shiftEnd) {
-                        const effectiveStart = new Date(Math.max(cur.getTime(), shiftStart.getTime()));
-                        const rawMs = shiftEnd - effectiveStart;
-                        const lunchMs = sysConfig.lunchMins * 60000;
-                        
-                        // Deduct lunch if effective window spans across lunch
-                        const lunchStart = parseTimeString(cur, sysConfig.lunchStart);
-                        let netMs = rawMs;
-                        if (effectiveStart < lunchStart) {
-                            netMs -= lunchMs;
-                        }
-                        totalMs += Math.max(0, netMs);
-                    }
-                }
-                // Advance to next day at 00:00:00
-                cur.setDate(cur.getDate() + 1);
-                cur.setHours(0,0,0,0);
-            }
-            return totalMs / 3600000;
-        }
-
-        // CUSTOM MILESTONE RENDERING
-        function renderMilestones(now) {
-            const container = document.getElementById("milestonesList");
-            if (!userMilestones.length) {
-                container.innerHTML = `<div class="text-xs opacity-60 italic text-center py-4">// NO CUSTOM TARGETS LOGGED</div>`;
+        // 5. SECTION 3: TARGET MILESTONES
+        function updateMilestoneTelemetry(now) {
+            if (milestones.length === 0) {
+                document.getElementById('activeMilestoneTitle').innerText = "NO MILESTONES CONFIGURED";
+                document.getElementById('milestoneCountdownDisplay').innerText = "000d 00h : 00m : 00s . 0";
                 return;
             }
 
-            container.innerHTML = userMilestones.map(m => {
-                const target = new Date(m.datetime);
-                const diffMs = target - now;
-                const isPast = diffMs <= 0;
+            if (activeMilestoneIdx >= milestones.length) activeMilestoneIdx = 0;
 
-                let tagClass = "border-[var(--theme-color)] text-[var(--theme-color)]";
-                if (m.tag === "PTO") tagClass = "border-amber-400 text-amber-400";
-                if (m.tag === "HOLIDAY") tagClass = "border-cyan-400 text-cyan-400";
+            const ms = milestones[activeMilestoneIdx];
+            document.getElementById('activeMilestoneTitle').innerText = ms.title.toUpperCase();
+            document.getElementById('milestoneCounterLabel').innerText = `${activeMilestoneIdx + 1} / ${milestones.length}`;
 
-                return `
-                    <div class="p-2 bg-black border border-[var(--theme-dim)] flex justify-between items-center text-xs">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-bold">${escapeHtml(m.label)}</span>
-                                <span class="px-1 text-[9px] border ${tagClass}">${m.tag}</span>
-                            </div>
-                            <div class="text-[10px] opacity-70">${formatDateShort(target)}</div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="text-right font-mono font-bold ${isPast ? 'text-gray-500' : 'text-yellow-400'}">
-                                ${isPast ? 'REACHED' : formatTimeMs(diffMs, true)}
-                            </div>
-                            <button onclick="deleteMilestone(${m.id})" class="text-red-400 hover:text-red-300 font-bold px-1">[X]</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            const targetDate = new Date(ms.target);
+            const startDate = new Date(ms.start);
+            document.getElementById('milestoneTargetDateLabel').innerText = `TARGET: ${targetDate.toLocaleString()}`;
+
+            const diffMs = targetDate - now;
+            if (diffMs <= 0) {
+                document.getElementById('milestoneCountdownDisplay').innerText = "000d 00h : 00m : 00s . 0";
+                document.getElementById('milestoneProgressText').innerText = "100.00%";
+                document.getElementById('milestoneProgressBar').style.width = "100%";
+                document.getElementById('msWorkdaysRemaining').innerText = "0 days";
+                document.getElementById('msDutyHoursRemaining').innerText = "0.0 hrs";
+                document.getElementById('msRdosRemaining').innerText = "0 RDOs";
+                document.getElementById('msPaydaysRemaining').innerText = "0 Paydays";
+            } else {
+                document.getElementById('milestoneCountdownDisplay').innerText = formatMilestoneCountdown(diffMs);
+
+                // Timeline Progress
+                const totalDuration = targetDate - startDate;
+                const elapsed = Math.max(0, now - startDate);
+                const progressPct = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+
+                document.getElementById('milestoneProgressText').innerText = `${progressPct.toFixed(2)}%`;
+                document.getElementById('milestoneProgressBar').style.width = `${progressPct}%`;
+
+                // Detailed Work-Time Telemetry
+                const workdays = calculateActualWorkdaysBetween(now, targetDate);
+                const dutyHours = calculateNetDutyHoursBetween(now, targetDate);
+                const rdos = calculateRdosBetween(now, targetDate);
+                const paydays = calculatePaydaysBetween(now, targetDate);
+
+                document.getElementById('msWorkdaysRemaining').innerText = `${workdays} workdays`;
+                document.getElementById('msDutyHoursRemaining').innerText = `${dutyHours.toFixed(1)} hrs`;
+                document.getElementById('msRdosRemaining').innerText = `${rdos} RDOs`;
+                document.getElementById('msPaydaysRemaining').innerText = `${paydays} Paydays`;
+            }
         }
 
-        // MODAL ACTIONS
+        function prevMilestone() {
+            if (milestones.length === 0) return;
+            activeMilestoneIdx = (activeMilestoneIdx - 1 + milestones.length) % milestones.length;
+            tick();
+        }
+
+        function nextMilestone() {
+            if (milestones.length === 0) return;
+            activeMilestoneIdx = (activeMilestoneIdx + 1) % milestones.length;
+            tick();
+        }
+
+        function renderMilestonesQueue() {
+            const queueList = document.getElementById('milestonesQueueList');
+            if (milestones.length === 0) {
+                queueList.innerHTML = `<div class="text-xs text-muted">No milestones in queue. Click "+ NEW MILESTONE" to add one.</div>`;
+                return;
+            }
+
+            let html = "";
+            milestones.forEach((m, idx) => {
+                const isActive = (idx === activeMilestoneIdx);
+                const activeBorder = isActive ? 'border-bright bg-main/10 font-bold' : 'term-border bg-black/40';
+                html += `
+                    <div class="flex justify-between items-center border ${activeBorder} p-2 text-xs">
+                        <div class="cursor-pointer flex-1" onclick="selectMilestone(${idx})">
+                            <span class="text-main">${m.title}</span>
+                            <span class="text-dim ml-2">[${new Date(m.target).toLocaleDateString()}]</span>
+                            ${isActive ? '<span class="ml-2 text-xs text-dim">&lt;ACTIVE&gt;</span>' : ''}
+                        </div>
+                        <button onclick="deleteMilestone(${idx})" class="term-btn text-[10px] py-0 px-1 hover:bg-red-900/50">DELETE</button>
+                    </div>
+                `;
+            });
+            queueList.innerHTML = html;
+        }
+
+        function selectMilestone(idx) {
+            activeMilestoneIdx = idx;
+            renderMilestonesQueue();
+            tick();
+        }
+
+        function deleteMilestone(idx) {
+            milestones.splice(idx, 1);
+            if (activeMilestoneIdx >= milestones.length) activeMilestoneIdx = Math.max(0, milestones.length - 1);
+            saveMilestones();
+            renderMilestonesQueue();
+            tick();
+        }
+
+        // 6. SECTION 4: RETIREMENT COUNTDOWN (BOTTOM HORIZON)
+        function updateRetirementTelemetry(now) {
+            const retireDate = new Date(config.retireTarget);
+            const careerStart = new Date(config.careerStart + 'T07:00:00');
+
+            document.getElementById('retireTitleLabel').innerText = `67TH BIRTHDAY RETIREMENT — ${retireDate.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }).toUpperCase()}`;
+            document.getElementById('careerStartDateLabel').innerText = config.careerStart;
+
+            const diffMs = retireDate - now;
+
+            if (diffMs <= 0) {
+                document.getElementById('retirementClockDisplay').innerText = "00 YRS : 000 DAYS : 00 HRS : 00 MIN : 00 SEC";
+                document.getElementById('retirementTotalDays').innerText = "RETIRED";
+                document.getElementById('retirePrecisionPercent').innerText = "100.000000%";
+                document.getElementById('retireProgressBar').style.width = "100%";
+                document.getElementById('retireWorkdaysVal').innerText = "0";
+                document.getElementById('retireDutyHoursVal').innerText = "0.0 hrs";
+                document.getElementById('retirePaydaysVal').innerText = "0";
+                document.getElementById('retireRdosVal').innerText = "0";
+                return;
+            }
+
+            // Time components
+            const totalSecs = Math.floor(diffMs / 1000);
+            const totalDays = Math.floor(totalSecs / 86400);
+
+            const years = Math.floor(totalDays / 365.25);
+            const remDaysAfterYears = Math.floor(totalDays % 365.25);
+
+            const hours = Math.floor((totalSecs % 86400) / 3600);
+            const mins = Math.floor((totalSecs % 3600) / 60);
+            const secs = totalSecs % 60;
+
+            const clockStr = `${formatTwoDigits(years)} YRS : ${String(remDaysAfterYears).padStart(3, '0')} DAYS : ${formatTwoDigits(hours)} HRS : ${formatTwoDigits(mins)} MIN : ${formatTwoDigits(secs)} SEC`;
+            document.getElementById('retirementClockDisplay').innerText = clockStr;
+            document.getElementById('retirementTotalDays').innerHTML = `TOTAL REMAINING CALENDAR DAYS: <span class="text-main font-bold">${totalDays.toLocaleString()} DAYS</span>`;
+
+            // Career Microsecond Precision Progress
+            const totalCareerMs = retireDate - careerStart;
+            const elapsedCareerMs = Math.max(0, now - careerStart);
+            const careerPct = Math.min(100, Math.max(0, (elapsedCareerMs / totalCareerMs) * 100));
+
+            document.getElementById('retirePrecisionPercent').innerText = `${careerPct.toFixed(6)}%`;
+            document.getElementById('retireProgressBar').style.width = `${careerPct}%`;
+
+            // Long-Range Telemetry Estimates based on 5/4/9 compressed schedule
+            // 80 duty hours per 14 days = ~2080 hours per 364 days
+            // Workdays per 14-day cycle = 9 workdays
+            const totalCyclesRemaining = totalDays / 14;
+            const estWorkdays = Math.floor(totalCyclesRemaining * 9);
+            const estDutyHours = (totalCyclesRemaining * 80).toFixed(1);
+            const estPaydays = Math.floor(totalCyclesRemaining);
+            const estRdos = Math.floor(totalCyclesRemaining);
+
+            document.getElementById('retireWorkdaysVal').innerText = estWorkdays.toLocaleString();
+            document.getElementById('retireDutyHoursVal').innerText = `${Number(estDutyHours).toLocaleString()} hrs`;
+            document.getElementById('retirePaydaysVal').innerText = estPaydays.toLocaleString();
+            document.getElementById('retireRdosVal').innerText = estRdos.toLocaleString();
+        }
+
+        // ==========================================
+        // WORKDAY & HOUR CALCULATION UTILITIES
+        // ==========================================
+        function calculateActualWorkdaysBetween(startDate, endDate) {
+            let count = 0;
+            let cur = new Date(startDate);
+            cur.setHours(0, 0, 0, 0);
+            const end = new Date(endDate);
+
+            while (cur < end) {
+                const day = cur.getDay();
+                if (day !== 0 && day !== 6) {
+                    const info = getRdoCycleInfo(cur);
+                    if (!info.isRdoFriday) {
+                        count++;
+                    }
+                }
+                cur.setDate(cur.getDate() + 1);
+            }
+            return count;
+        }
+
+        function calculateNetDutyHoursBetween(startDate, endDate) {
+            let totalHours = 0;
+            let cur = new Date(startDate);
+
+            // First partial day
+            const endOfFirstDay = new Date(cur);
+            endOfFirstDay.setHours(23, 59, 59, 999);
+
+            if (endDate < endOfFirstDay) {
+                // Same day range
+                return calculatePartialDayDuty(startDate, endDate);
+            }
+
+            // Accrue partial start day
+            const startDayEnd = new Date(cur);
+            const infoStart = getRdoCycleInfo(cur);
+            const endParts = infoStart.isShortThursday ? parseTimeStr(config.shortThuEnd) : parseTimeStr(config.shiftEnd);
+            startDayEnd.setHours(endParts.h, endParts.m, 0, 0);
+
+            if (cur < startDayEnd) {
+                totalHours += calculatePartialDayDuty(cur, startDayEnd);
+            }
+
+            // Move to next full day
+            cur.setDate(cur.getDate() + 1);
+            cur.setHours(0, 0, 0, 0);
+
+            const lastDayStart = new Date(endDate);
+            lastDayStart.setHours(0, 0, 0, 0);
+
+            while (cur < lastDayStart) {
+                totalHours += getDutyHoursForDay(cur);
+                cur.setDate(cur.getDate() + 1);
+            }
+
+            // Accrue partial final day
+            if (cur <= endDate) {
+                totalHours += calculatePartialDayDuty(cur, endDate);
+            }
+
+            return Math.max(0, totalHours);
+        }
+
+        function calculatePartialDayDuty(sDate, eDate) {
+            const day = sDate.getDay();
+            if (day === 0 || day === 6) return 0;
+
+            const info = getRdoCycleInfo(sDate);
+            if (info.isRdoFriday) return 0;
+
+            const startParts = parseTimeStr(config.shiftStart);
+            const endParts = info.isShortThursday ? parseTimeStr(config.shortThuEnd) : parseTimeStr(config.shiftEnd);
+            const lunchParts = parseTimeStr(config.lunchStart);
+
+            const shiftStart = new Date(sDate);
+            shiftStart.setHours(startParts.h, startParts.m, 0, 0);
+
+            const shiftEnd = new Date(sDate);
+            shiftEnd.setHours(endParts.h, endParts.m, 0, 0);
+
+            const lunchStart = new Date(sDate);
+            lunchStart.setHours(lunchParts.h, lunchParts.m, 0, 0);
+
+            const lunchEnd = new Date(lunchStart.getTime() + config.lunchMins * 60000);
+
+            const clampStart = new Date(Math.max(sDate, shiftStart));
+            const clampEnd = new Date(Math.min(eDate, shiftEnd));
+
+            if (clampStart >= clampEnd) return 0;
+
+            let totalMins = (clampEnd - clampStart) / 60000;
+
+            // Subtract lunch overlap
+            const lunchOverlapStart = new Date(Math.max(clampStart, lunchStart));
+            const lunchOverlapEnd = new Date(Math.min(clampEnd, lunchEnd));
+
+            if (lunchOverlapStart < lunchOverlapEnd) {
+                totalMins -= (lunchOverlapEnd - lunchOverlapStart) / 60000;
+            }
+
+            return Math.max(0, totalMins / 60);
+        }
+
+        function calculateRdosBetween(startDate, endDate) {
+            let count = 0;
+            let cur = new Date(startDate);
+            cur.setHours(0, 0, 0, 0);
+
+            while (cur < endDate) {
+                if (cur.getDay() === 5) {
+                    const info = getRdoCycleInfo(cur);
+                    if (info.isRdoFriday) count++;
+                }
+                cur.setDate(cur.getDate() + 1);
+            }
+            return count;
+        }
+
+        function calculatePaydaysBetween(startDate, endDate) {
+            let count = 0;
+            const paydayAnchor = new Date(config.paydayAnchor + 'T16:30:00');
+            const dayMs = 86400000 * 14;
+
+            let checkPayday = new Date(paydayAnchor);
+            while (checkPayday < startDate) {
+                checkPayday = new Date(checkPayday.getTime() + dayMs);
+            }
+
+            while (checkPayday <= endDate) {
+                count++;
+                checkPayday = new Date(checkPayday.getTime() + dayMs);
+            }
+            return count;
+        }
+
+        // ==========================================
+        // FORMATTERS
+        // ==========================================
+        function formatCountdown(ms) {
+            if (ms <= 0) return "00 : 00 : 00 . 0";
+            const h = Math.floor(ms / 3600000);
+            const m = Math.floor((ms % 3600000) / 60000);
+            const s = Math.floor((ms % 60000) / 1000);
+            const tenths = Math.floor((ms % 1000) / 100);
+            return `${formatTwoDigits(h)} : ${formatTwoDigits(m)} : ${formatTwoDigits(s)} . ${tenths}`;
+        }
+
+        function formatDaysCountdown(ms) {
+            if (ms <= 0) return "00d 00h : 00m : 00s";
+            const d = Math.floor(ms / 86400000);
+            const h = Math.floor((ms % 86400000) / 3600000);
+            const m = Math.floor((ms % 3600000) / 60000);
+            const s = Math.floor((ms % 60000) / 1000);
+            return `${formatTwoDigits(d)}d ${formatTwoDigits(h)}h : ${formatTwoDigits(m)}m : ${formatTwoDigits(s)}s`;
+        }
+
+        function formatMilestoneCountdown(ms) {
+            if (ms <= 0) return "000d 00h : 00m : 00s . 0";
+            const d = Math.floor(ms / 86400000);
+            const h = Math.floor((ms % 86400000) / 3600000);
+            const m = Math.floor((ms % 3600000) / 60000);
+            const s = Math.floor((ms % 60000) / 1000);
+            const tenths = Math.floor((ms % 1000) / 100);
+            return `${String(d).padStart(3, '0')}d ${formatTwoDigits(h)}h : ${formatTwoDigits(m)}m : ${formatTwoDigits(s)}s . ${tenths}`;
+        }
+
+        // ==========================================
+        // MODALS HANDLERS
+        // ==========================================
+        function populateConfigModalFields() {
+            document.getElementById('cfgShiftStart').value = config.shiftStart;
+            document.getElementById('cfgShiftEnd').value = config.shiftEnd;
+            document.getElementById('cfgShortThuEnd').value = config.shortThuEnd;
+            document.getElementById('cfgLunchStart').value = config.lunchStart;
+            document.getElementById('cfgLunchMins').value = config.lunchMins;
+            document.getElementById('cfgRdoAnchor').value = config.rdoAnchor;
+            document.getElementById('cfgPaydayAnchor').value = config.paydayAnchor;
+            document.getElementById('cfgCareerStart').value = config.careerStart;
+            document.getElementById('cfgRetireDate').value = config.retireTarget;
+        }
+
         function openConfigModal() {
-            document.getElementById("cfgShiftStart").value = sysConfig.shiftStart;
-            document.getElementById("cfgShiftEndNormal").value = sysConfig.shiftEndNormal;
-            document.getElementById("cfgShiftEndShortThu").value = sysConfig.shiftEndShortThu;
-            document.getElementById("cfgLunchStart").value = sysConfig.lunchStart;
-            document.getElementById("cfgLunchMins").value = sysConfig.lunchMins;
-            document.getElementById("cfgAnchorRdoDate").value = sysConfig.anchorRdoDate;
-            document.getElementById("configModal").classList.remove("hidden");
+            populateConfigModalFields();
+            document.getElementById('configModal').classList.remove('hidden');
         }
 
         function closeConfigModal() {
-            document.getElementById("configModal").classList.add("hidden");
+            document.getElementById('configModal').classList.add('hidden');
         }
 
-        function saveConfig(e) {
-            e.preventDefault();
-            sysConfig.shiftStart = document.getElementById("cfgShiftStart").value;
-            sysConfig.shiftEndNormal = document.getElementById("cfgShiftEndNormal").value;
-            sysConfig.shiftEndShortThu = document.getElementById("cfgShiftEndShortThu").value;
-            sysConfig.lunchStart = document.getElementById("cfgLunchStart").value;
-            sysConfig.lunchMins = parseInt(document.getElementById("cfgLunchMins").value) || 30;
-            sysConfig.anchorRdoDate = document.getElementById("cfgAnchorRdoDate").value;
+        function saveConfigModal() {
+            config.shiftStart = document.getElementById('cfgShiftStart').value || '07:00';
+            config.shiftEnd = document.getElementById('cfgShiftEnd').value || '16:30';
+            config.shortThuEnd = document.getElementById('cfgShortThuEnd').value || '15:30';
+            config.lunchStart = document.getElementById('cfgLunchStart').value || '11:30';
+            config.lunchMins = parseInt(document.getElementById('cfgLunchMins').value, 10) || 30;
+            config.rdoAnchor = document.getElementById('cfgRdoAnchor').value || '2026-11-20';
+            config.paydayAnchor = document.getElementById('cfgPaydayAnchor').value || '2026-11-20';
+            config.careerStart = document.getElementById('cfgCareerStart').value || '2019-07-01';
+            config.retireTarget = document.getElementById('cfgRetireDate').value || '2054-07-02T16:30';
 
-            localStorage.setItem("workday_549_config", JSON.stringify(sysConfig));
+            saveConfig();
             closeConfigModal();
-            updateDashboard();
+            tick();
         }
 
         function resetConfigDefaults() {
-            sysConfig = { ...DEFAULT_CONFIG };
-            localStorage.setItem("workday_549_config", JSON.stringify(sysConfig));
-            openConfigModal();
-            updateDashboard();
+            config = { ...DEFAULT_CONFIG };
+            saveConfig();
+            populateConfigModalFields();
+            applyTheme(config.theme);
+            tick();
         }
 
-        function openAddMilestoneModal() {
-            document.getElementById("msLabel").value = "";
-            document.getElementById("msDateTime").value = "";
-            document.getElementById("milestoneModal").classList.remove("hidden");
+        function openNewMilestoneModal() {
+            const now = new Date();
+            document.getElementById('newMsTitle').value = '';
+            document.getElementById('newMsStart').value = now.toISOString().slice(0, 16);
+            document.getElementById('newMsTarget').value = new Date(now.getTime() + 86400000 * 30).toISOString().slice(0, 16);
+            document.getElementById('newMilestoneModal').classList.remove('hidden');
         }
 
-        function closeMilestoneModal() {
-            document.getElementById("milestoneModal").classList.add("hidden");
+        function closeNewMilestoneModal() {
+            document.getElementById('newMilestoneModal').classList.add('hidden');
         }
 
-        function saveMilestone(e) {
-            e.preventDefault();
-            const label = document.getElementById("msLabel").value;
-            const datetime = document.getElementById("msDateTime").value;
-            const tag = document.getElementById("msTag").value;
+        function saveNewMilestone() {
+            const title = document.getElementById('newMsTitle').value.trim() || 'CUSTOM TARGET MILESTONE';
+            const start = document.getElementById('newMsStart').value;
+            const target = document.getElementById('newMsTarget').value;
 
-            userMilestones.push({
-                id: Date.now(),
-                label,
-                datetime,
-                tag
-            });
-
-            localStorage.setItem("workday_549_milestones", JSON.stringify(userMilestones));
-            closeMilestoneModal();
-            updateDashboard();
-        }
-
-        function deleteMilestone(id) {
-            userMilestones = userMilestones.filter(m => m.id !== id);
-            localStorage.setItem("workday_549_milestones", JSON.stringify(userMilestones));
-            updateDashboard();
-        }
-
-        // FORMATTING & ASCII UTILITIES
-        function renderAsciiBar(pct, totalBlocks = 40) {
-            const filledCount = Math.round((pct / 100) * totalBlocks);
-            const emptyCount = totalBlocks - filledCount;
-            const filledStr = "█".repeat(Math.max(0, filledCount));
-            const emptyStr = "░".repeat(Math.max(0, emptyCount));
-            return `[${filledStr}${emptyStr}]`;
-        }
-
-        function parseTimeString(baseDate, timeStr) {
-            const [h, m] = timeStr.split(':').map(Number);
-            const d = new Date(baseDate);
-            d.setHours(h, m, 0, 0);
-            return d;
-        }
-
-        function formatTimeMs(ms, includeDays = false) {
-            if (ms <= 0) return includeDays ? "0d 00h 00m 00s" : "00:00:00.0";
-            
-            const totalSec = Math.floor(ms / 1000);
-            const tenths = Math.floor((ms % 1000) / 100);
-            const seconds = totalSec % 60;
-            const totalMin = Math.floor(totalSec / 60);
-            const minutes = totalMin % 60;
-            const hours = Math.floor(totalMin / 60) % 24;
-            const days = Math.floor(totalMin / (60 * 24));
-
-            const pad = (n) => n.toString().padStart(2, '0');
-
-            if (includeDays) {
-                return `${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+            if (!target) {
+                alert('Please provide a target date and time.');
+                return;
             }
 
-            const formatHours = Math.floor(totalSec / 3600);
-            return `${pad(formatHours)}:${pad(minutes)}:${pad(seconds)}.${tenths}`;
-        }
+            const newMs = {
+                id: 'm_' + Date.now(),
+                title: title.toUpperCase(),
+                start: start || new Date().toISOString().slice(0, 16),
+                target: target
+            };
 
-        function formatDateShort(d) {
-            const days = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
-            return `${days[d.getDay()]} ${d.getMonth()+1}/${d.getDate()} @ ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
-        }
-
-        // GITHUB PAGES / STANDALONE DOWNLOAD FUNCTION
-        function exportDashboard() {
-            const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-            const blob = new Blob([htmlContent], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'index.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            milestones.push(newMs);
+            activeMilestoneIdx = milestones.length - 1;
+            saveMilestones();
+            closeNewMilestoneModal();
+            renderMilestonesQueue();
+            tick();
         }
     </script>
 </body>
