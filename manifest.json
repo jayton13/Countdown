@@ -1,0 +1,16 @@
+{
+  "name": "Workday Countdown Terminal",
+  "short_name": "Workday",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#050705",
+  "theme_color": "#050705",
+  "icons": [
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
