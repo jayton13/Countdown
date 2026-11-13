@@ -1197,7 +1197,17 @@
           setText('live-timezone', Intl.DateTimeFormat().resolvedOptions().timeZone || 'LOCAL');
         } catch(e) { setText('live-timezone', 'LOCAL'); }
 
-        setText('rdo-sync-label', config.rdoPhase === 0 ? '[THIS FRI IS RDO]' : '[NEXT FRI IS RDO]');
+        // Evaluate current/upcoming Friday for RDO Sync button label
+        let weekendTargetDate = new Date(now);
+        weekendTargetDate.setHours(0, 0, 0, 0);
+
+        const dow = weekendTargetDate.getDay();
+        const distToFri = 5 - (dow === 0 ? 7 : dow);
+        const friDate = new Date(weekendTargetDate);
+        friDate.setDate(friDate.getDate() + distToFri);
+
+        const thisFriIsRdo = isRdoFridayFast(friDate);
+        setText('rdo-sync-label', thisFriIsRdo ? '[THIS FRI IS RDO]' : '[NEXT FRI IS RDO]');
 
         // --- SECTION 01: TODAY'S SHIFT TELEMETRY ---
         const shift = getTodayShiftDetails(now);
@@ -1223,14 +1233,6 @@
 
 
         // --- SECTION 02A: UNIFIED WEEKEND COUNTDOWN ---
-        let weekendTargetDate = new Date(now);
-        weekendTargetDate.setHours(0, 0, 0, 0);
-
-        const dow = weekendTargetDate.getDay();
-        const distToFri = 5 - (dow === 0 ? 7 : dow);
-        const friDate = new Date(weekendTargetDate);
-        friDate.setDate(friDate.getDate() + distToFri);
-
         let lastWorkdayOfWeek = new Date(friDate);
         for (let i = 0; i < 5; i++) {
           const testDate = new Date(friDate);
@@ -1242,8 +1244,7 @@
           }
         }
 
-        let weekendBadgeText = "[REGULAR 2-DAY]";
-        if (isRdoFridayFast(friDate)) weekendBadgeText = "[3-DAY RDO WEEKEND]";
+        let weekendBadgeText = thisFriIsRdo ? "[3-DAY RDO WEEKEND]" : "[REGULAR 2-DAY]";
 
         const lastWorkdayInfo = getDayScheduleInfo(lastWorkdayOfWeek);
         const endShiftTime = lastWorkdayInfo.isShortThu ? config.shiftEndShort : config.shiftEndReg;
