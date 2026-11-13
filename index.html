@@ -1231,29 +1231,36 @@
         setText('today-pct-text', `${shift.pct.toFixed(2)}%`);
         setStyleWidth('today-progress-fill', shift.pct);
 
+// --- SECTION 02A: UNIFIED WEEKEND COUNTDOWN ---
+        let targetFri = new Date(friDate);
+        let lastWorkdayOfWeek = new Date(targetFri);
 
-        // --- SECTION 02A: UNIFIED WEEKEND COUNTDOWN ---
-        let lastWorkdayOfWeek = new Date(friDate);
-        for (let i = 0; i < 5; i++) {
-          const testDate = new Date(friDate);
-          testDate.setDate(testDate.getDate() - i);
-          const dayInfo = getDayScheduleInfo(testDate);
-          if (dayInfo.isWorkday) {
-            lastWorkdayOfWeek = testDate;
-            break;
+        function findLastWorkdayForFri(fridayObj) {
+          for (let i = 0; i < 5; i++) {
+            const testDate = new Date(fridayObj);
+            testDate.setDate(testDate.getDate() - i);
+            const dayInfo = getDayScheduleInfo(testDate);
+            if (dayInfo.isWorkday) {
+              const endStr = dayInfo.isShortThu ? config.shiftEndShort : config.shiftEndReg;
+              const [endH, endM] = endStr.split(':').map(Number);
+              testDate.setHours(endH, endM, 0, 0);
+              return { date: testDate, endStr };
+            }
           }
+          return null;
         }
 
-        let weekendBadgeText = thisFriIsRdo ? "[3-DAY RDO WEEKEND]" : "[REGULAR 2-DAY]";
+        let wkndTargetInfo = findLastWorkdayForFri(targetFri);
 
-        const lastWorkdayInfo = getDayScheduleInfo(lastWorkdayOfWeek);
-        const endShiftTime = lastWorkdayInfo.isShortThu ? config.shiftEndShort : config.shiftEndReg;
-        const [wEndH, wEndM] = endShiftTime.split(':').map(Number);
-        lastWorkdayOfWeek.setHours(wEndH, wEndM, 0, 0);
-
-        if (now >= lastWorkdayOfWeek) {
-          lastWorkdayOfWeek.setDate(lastWorkdayOfWeek.getDate() + 7);
+        // If this week's final shift has already ended (or today is RDO Friday), advance target Friday by 7 days and re-evaluate next week
+        if (!wkndTargetInfo || now >= wkndTargetInfo.date) {
+          targetFri.setDate(targetFri.getDate() + 7);
+          wkndTargetInfo = findLastWorkdayForFri(targetFri);
         }
+
+        lastWorkdayOfWeek = wkndTargetInfo.date;
+        const endShiftTime = wkndTargetInfo.endStr;
+        const weekendBadgeText = isRdoFridayFast(targetFri) ? "[3-DAY RDO WEEKEND]" : "[REGULAR 2-DAY]";
 
         const wkndCd = calculateWorkdayCountdown(lastWorkdayOfWeek, now);
         setText('weekend-type-badge', weekendBadgeText);
@@ -1263,10 +1270,10 @@
         );
         setText('weekend-target-subtitle', `TARGET: ${formatDateISO(lastWorkdayOfWeek)} @ ${endShiftTime}`);
 
-        const wkndPct = Math.min(100, Math.max(0, ((45 - (wkndCd.totalDutySeconds/3600)) / 45) * 100));
+        const totalWeekHours = isRdoFridayFast(targetFri) ? 35 : 45;
+        const wkndPct = Math.min(100, Math.max(0, ((totalWeekHours - (wkndCd.totalDutySeconds/3600)) / totalWeekHours) * 100));
         setText('weekend-pct-text', `${wkndPct.toFixed(1)}%`);
         setStyleWidth('weekend-progress-fill', wkndPct);
-
 
         // --- SECTION 02B: BIWEEKLY PAYDAY TELEMETRY ---
         const anchorParts = config.paydayAnchorDate.split('-');
