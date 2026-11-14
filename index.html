@@ -1318,7 +1318,7 @@
     /**
      * Renders 14-day Pay Period Grid with badges
      */
-    function renderPayPeriodMatrix(now) {
+      function renderPayPeriodMatrix(now) {
       const gridEl = document.getElementById('matrix-grid');
       if (!gridEl) return;
       gridEl.innerHTML = '';
@@ -1330,15 +1330,34 @@
       payPeriodStartMon.setDate(payPeriodStartMon.getDate() - currIndex);
       payPeriodStartMon.setHours(0, 0, 0, 0);
 
-      let totalCreditedHours = 0;
+      const todayStr = formatDateISO(now);
+      let completedCreditedHours = 0;
 
       for (let i = 0; i < 14; i++) {
         const d = new Date(payPeriodStartMon);
         d.setDate(d.getDate() + i);
+        const dStr = formatDateISO(d);
         const dayInfo = getDayScheduleInfo(d);
-        const isToday = formatDateISO(d) === formatDateISO(now);
+        const isToday = dStr === todayStr;
 
-        let badge = `[${dayInfo.scheduledHours}h]`;
+        // Paid leave credit: Federal holidays on scheduled workdays still credit 8h or 9h toward the 80h pay period
+        const paidHolidayHours = (!dayInfo.isWeekend && !dayInfo.isRdo && dayInfo.isFedHol)
+          ? (dayInfo.isShortThu ? 8.0 : 9.0)
+          : 0;
+        const payPeriodCredit = dayInfo.scheduledHours + paidHolidayHours;
+
+        // Tally hours earned up to right now
+        if (dStr < todayStr) {
+          completedCreditedHours += payPeriodCredit;
+        } else if (isToday) {
+          if (dayInfo.isFedHol) {
+            completedCreditedHours += paidHolidayHours;
+          } else if (dayInfo.isWorkday) {
+            completedCreditedHours += todayShift.dutyCompletedToday;
+          }
+        }
+
+        let badge = `[${payPeriodCredit}h]`;
         let badgeColor = 'text-[var(--text-dim)] border-[var(--border-dim)]';
 
         if (dayInfo.isFedHol) {
@@ -1363,8 +1382,6 @@
           badgeColor += ' bg-[var(--accent-glow)] ring-1 ring-[var(--text-main)]';
         }
 
-        totalCreditedHours += dayInfo.scheduledHours;
-
         const dayName = d.toLocaleDateString('en-US', { weekday: 'narrow' });
         const dateNum = d.getDate();
 
@@ -1373,17 +1390,16 @@
         box.innerHTML = `
           <div class="font-bold">${dayName} ${dateNum}</div>
           <div class="my-0.5 text-[8px] scale-90">${badge}</div>
-          <div>${dayInfo.scheduledHours > 0 ? dayInfo.scheduledHours + 'h' : '-'}</div>
+          <div>${payPeriodCredit > 0 ? payPeriodCredit + 'h' : '-'}</div>
         `;
         gridEl.appendChild(box);
       }
 
-      setText('pay-period-hours-badge', `${totalCreditedHours.toFixed(1)} / 80.0 HRS`);
-      const matrixPct = (totalCreditedHours / 80) * 100;
+      setText('pay-period-hours-badge', `${completedCreditedHours.toFixed(1)} / 80.0 HRS`);
+      const matrixPct = Math.min(100, Math.max(0, (completedCreditedHours / 80) * 100));
       setText('matrix-pct-text', `${matrixPct.toFixed(1)}%`);
       setStyleWidth('matrix-progress-fill', matrixPct);
     }
-
     /**
      * Primary Hero Milestone Renderer
      */
