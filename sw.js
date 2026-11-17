@@ -1,4 +1,4 @@
-const CACHE_NAME = 'workday-terminal-v4';
+const CACHE_NAME = 'workday-terminal-v5';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-512.png'];
 
 self.addEventListener('install', (event) => {
